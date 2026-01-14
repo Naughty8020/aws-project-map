@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # ローカルのnode_modulesで上書きされないように
+    environment:
+      - WATCHPACK_POLLING=true # ホストがWindows/Macの場合のホットリロード対策
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
