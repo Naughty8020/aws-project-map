@@ -10,7 +10,7 @@ function App() {
   const { data, isLoading } = useQuery({
     queryKey: ['hello'],
     queryFn: async () => {
-      const res = await client.api.data.$get();
+      const res = await client.api.ai.$get();
       return await res.json();
     },
   });

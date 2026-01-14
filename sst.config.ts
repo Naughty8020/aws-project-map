@@ -12,7 +12,14 @@ export default $config({
     // Honoバックエンド（Lambda）の定義
     const api = new sst.aws.Function("MyApi", {
       handler: "backend/src/index.handler",
-      url: true, // 公開用URLを発行
+      url: true,
+      timeout: "1 minute",
+      permissions: [
+        {
+          actions: ["bedrock:InvokeModel"],
+          resources: ["*"],
+        },
+      ],
     });
 
     // 完了時にURLを表示する
