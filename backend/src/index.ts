@@ -1,12 +1,16 @@
+// backend/src/index.ts
+import { handle } from 'hono/aws-lambda'
 import { Hono } from 'hono'
-import { handle } from 'hono/aws-lambda' // Lambda用のアダプター
+import { cors } from 'hono/cors'
 
 const app = new Hono()
 
-app.get('/api/hello', (c) => {
-  return c.json({ message: 'Hello from Hono on Lambda!' })
+// フロントエンドからのアクセスを許可
+app.use('/api/*', cors())
+
+app.get('/api/data', (c) => {
+  return c.json({ message: 'Hello from Lambda!' })
 })
 
-// Lambdaハンドラーとしてエクスポート
 export const handler = handle(app)
-
+export type AppType = typeof app
