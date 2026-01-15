@@ -1,5 +1,6 @@
 
 # Run the following command to build and start the Docker containers
+docker-compose down
 docker compose up --build
 
 
