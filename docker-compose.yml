@@ -2,17 +2,17 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5180:5173"
+      -  "5173:5173"
     volumes:
       - ./frontend:/app
       - /app/node_modules
     environment:
       - WATCHPACK_POLLING=true
 
-  backend:
-    build: ./backend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./backend:/app
+  #     - /app/node_modules
