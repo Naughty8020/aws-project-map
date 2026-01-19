@@ -3,6 +3,7 @@ import { useCrowdData } from './hooks/useCrowdData';
 import { hc } from 'hono/client';
 import type { AppType } from '../../backend/src/index'; // バックエンドの型を読み込む
 import Header from '../src/components/Header.tsx';
+import GoogleMap from './components/MapComponents';
 // SSTが発行したURLをここに貼る
 export const client = hc<AppType>('https://kezxwvevrxzfot4frmpdqhsegu0bjjyt.lambda-url.ap-northeast-1.on.aws')
 
@@ -15,6 +16,7 @@ function App() {
   return (
     <div>
       <Header />
+      <GoogleMap />
       <h1>Hono + TanStack Query</h1>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
