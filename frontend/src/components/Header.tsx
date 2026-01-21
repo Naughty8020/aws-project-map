@@ -44,15 +44,17 @@ export default function Example() {
       <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
-            <img
-              alt=""
-              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-              className="h-8 w-auto"
-            />
-          </a>
+              <div className="flex items-center space-x-2">
+                <img
+                  alt=""
+                  src="Icon.png"
+                  className="h-8 w-auto"
+                />
+                <span className="text-white text-lg font-semibold">MyAppName</span>
+              </div>
+            </a>
         </div>
-        <div className="flex lg:hidden">
+        <div className="flex">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
@@ -62,7 +64,7 @@ export default function Example() {
             <Bars3Icon aria-hidden="true" className="size-6" />
           </button>
         </div>
-        <PopoverGroup className="hidden lg:flex lg:gap-x-12">
+        <PopoverGroup className="hidden">
           <Popover className="relative">
             <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-white">
               Product
@@ -117,23 +119,25 @@ export default function Example() {
             Company
           </a>
         </PopoverGroup>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <div className="hidden">
           <a href="#" className="text-sm/6 font-semibold text-white">
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
       </nav>
-      <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
+      <Dialog open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                alt=""
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                className="h-8 w-auto"
-              />
+              <div className="flex items-center space-x-2">
+                <img
+                  alt=""
+                  src="Icon.png"
+                  className="h-8 w-auto"
+                />
+                <span className="text-white text-lg font-semibold">MyAppName</span>
+              </div>
             </a>
             <button
               type="button"
@@ -148,21 +152,8 @@ export default function Example() {
             <div className="-my-6 divide-y divide-white/10">
               <div className="space-y-2 py-6">
                 <Disclosure as="div" className="-mx-3">
-                  <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-white hover:bg-white/5">
-                    Product
-                    <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
-                  </DisclosureButton>
                   <DisclosurePanel className="mt-2 space-y-2">
-                    {[...products, ...callsToAction].map((item) => (
-                      <DisclosureButton
-                        key={item.name}
-                        as="a"
-                        href={item.href}
-                        className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-white hover:bg-white/5"
-                      >
-                        {item.name}
-                      </DisclosureButton>
-                    ))}
+
                   </DisclosurePanel>
                 </Disclosure>
                 <a
@@ -182,14 +173,6 @@ export default function Example() {
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5"
                 >
                   Company
-                </a>
-              </div>
-              <div className="py-6">
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-white hover:bg-white/5"
-                >
-                  Log in
                 </a>
               </div>
             </div>
