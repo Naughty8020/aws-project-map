@@ -39,16 +39,16 @@ export default function ApexChart() {
         show: false,
       },
       xaxis: {
-        categories: [
-          ['John', 'Doe'],
-          ['Joe', 'Smith'],
-          ['Jake', 'Williams'],
-          'Amber',
-          ['Peter', 'Brown'],
-          ['Mary', 'Evans'],
-          ['David', 'Wilson'],
-          ['Lily', 'Roberts'],
-        ],
+       categories: [
+  '清水寺',       // Kiyomizu-dera
+  '金閣寺',       // Kinkaku-ji
+  '銀閣寺',       // Ginkaku-ji
+  '伏見稲荷大社', // Fushimi Inari Taisha
+  '嵐山',         // Arashiyama
+  '祇園',         // Gion
+  '二条城',       // Nijo-jo
+  '平安神宮',     // Heian Shrine
+],
         labels: {
           style: {
             colors: colors,
@@ -65,7 +65,8 @@ export default function ApexChart() {
         options={state.options}
         series={state.series}
         type="bar"
-        height={350}
+        height={550}
+        width={800}
       />
     </div>
   );
