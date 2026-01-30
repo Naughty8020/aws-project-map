@@ -1,0 +1,1 @@
+export { KYOTO_SPOTS } from './KyotoSpots';
