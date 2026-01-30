@@ -7,6 +7,10 @@ type Props = {
   spots: Spot[];
 };
 
+function clamp(n: number, min: number, max: number) {
+  return Math.min(Math.max(n, min), max);
+}
+
 function MapInner({ spots, mapId }: { spots: Spot[]; mapId?: string }) {
   const isLoaded = useApiIsLoaded();
 
@@ -22,6 +26,15 @@ function MapInner({ spots, mapId }: { spots: Spot[]; mapId?: string }) {
     return '#FF0000';
   };
 
+  const crowdToRadius = (crowd: number): number => {
+  const c = clamp(crowd, 0, 100);
+  // sqrt圧縮: 0〜100 → 0〜10
+  const scaled = Math.sqrt(c);
+  // 60m〜220m に収める
+  return clamp(60 + scaled * 16, 60, 220);
+};
+
+
   if (!isLoaded) {
     return <div className="w-full h-full flex items-center justify-center">地図を読み込み中...</div>;
   }
@@ -34,19 +47,20 @@ function MapInner({ spots, mapId }: { spots: Spot[]; mapId?: string }) {
       {...(mapId ? { mapId } : {})}
     >
       {spots.map((spot) => (
-        <Circle
-          key={spot.name}
-          center={{ lat: spot.lat, lng: spot.lng }}
-          radius={100}
-          options={{
-            fillColor: getCrowdColor(spot.crowd),
-            fillOpacity: Math.min(Math.max(spot.crowd / 100, 0), 1),
-            strokeColor: getCrowdColor(spot.crowd),
-            strokeOpacity: 0.5,
-            strokeWeight: 1,
-          }}
-        />
-      ))}
+  <Circle
+    key={spot.name}
+    center={{ lat: spot.lat, lng: spot.lng }}
+    radius={crowdToRadius(spot.crowd)}
+    options={{
+      fillColor: getCrowdColor(spot.crowd),
+      fillOpacity: 0.08 + clamp(spot.crowd / 100, 0, 1) * 0.18,
+      strokeColor: getCrowdColor(spot.crowd),
+      strokeOpacity: 0.35,
+      strokeWeight: 1,
+    }}
+  />
+))}
+
     </Map>
   );
 }
