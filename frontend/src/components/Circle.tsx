@@ -4,11 +4,12 @@ import {
   useContext,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef
 } from 'react';
 
-import type {Ref} from 'react';
-import {GoogleMapsContext, latLngEquals} from '@vis.gl/react-google-maps';
+import type { Ref } from 'react';
+import { GoogleMapsContext, latLngEquals } from '@vis.gl/react-google-maps';
 
 type CircleEventProps = {
   onClick?: (e: google.maps.MapMouseEvent) => void;
@@ -21,7 +22,16 @@ type CircleEventProps = {
   onCenterChanged?: (p: ReturnType<google.maps.Circle['getCenter']>) => void;
 };
 
-export type CircleProps = google.maps.CircleOptions & CircleEventProps;
+/**
+ * ✅ 外から渡す形を「options + center + radius + events」に統一
+ * - MapComponents.tsx で `<Circle options={{...}} center={...} radius={...} />` が通る
+ * - options の中に center/radius を入れても動く（トップレベルを優先）
+ */
+export type CircleProps = CircleEventProps & {
+  options?: google.maps.CircleOptions;
+  center?: google.maps.LatLng | google.maps.LatLngLiteral | null;
+  radius?: number | null;
+};
 
 export type CircleRef = Ref<google.maps.Circle | null>;
 
@@ -35,11 +45,12 @@ function useCircle(props: CircleProps) {
     onMouseOut,
     onRadiusChanged,
     onCenterChanged,
-    radius,
+    options,
     center,
-    ...circleOptions
+    radius
   } = props;
-  // This is here to avoid triggering the useEffect below when the callbacks change (which happen if the user didn't memoize them)
+
+  // callbacks を ref に退避（再レンダリングで effect を余計に走らせない）
   const callbacks = useRef<Record<string, (e: unknown) => void>>({});
   Object.assign(callbacks.current, {
     onClick,
@@ -52,46 +63,82 @@ function useCircle(props: CircleProps) {
     onCenterChanged
   });
 
-  const circle = useRef(new google.maps.Circle()).current;
-  // update circleOptions (note the dependencies aren't properly checked
-  // here, we just assume that setOptions is smart enough to not waste a
-  // lot of time updating values that didn't change)
-  circle.setOptions(circleOptions);
+  const circle = useRef<google.maps.Circle | null>(null);
 
-  useEffect(() => {
-    if (!center) return;
-    if (!latLngEquals(center, circle.getCenter())) circle.setCenter(center);
-  }, [center]);
-
-  useEffect(() => {
-    if (radius === undefined || radius === null) return;
-    if (radius !== circle.getRadius()) circle.setRadius(radius);
-  }, [radius]);
-
+  // map 取得
   const map = useContext(GoogleMapsContext)?.map;
 
-  // create circle instance and add to the map once the map is available
-  useEffect(() => {
-    if (!map) {
-      if (map === undefined)
-        console.error('<Circle> has to be inside a Map component.');
+  // circle インスタンス生成は一度だけ
+  if (circle.current === null) {
+    circle.current = new google.maps.Circle();
+  }
 
+  // ✅ setOptions 用に最終 options を合成
+  // - options.center/radius があっても、props の center/radius が優先
+  const mergedOptions = useMemo<google.maps.CircleOptions>(() => {
+    const base = options ?? {};
+    const merged: google.maps.CircleOptions = { ...base };
+
+    if (center !== undefined) merged.center = center ?? null;
+    if (radius !== undefined) merged.radius = radius ?? 0;
+
+    return merged;
+  }, [options, center, radius]);
+
+  // options 更新（setOptions は差分適用してくれる前提）
+  useEffect(() => {
+    if (!circle.current) return;
+    circle.current.setOptions(mergedOptions);
+  }, [mergedOptions]);
+
+  // center の厳密同期（latLngEquals を活かす）
+  useEffect(() => {
+    if (!circle.current) return;
+
+    const nextCenter = mergedOptions.center;
+    if (!nextCenter) return;
+
+    if (!latLngEquals(nextCenter, circle.current.getCenter())) {
+      circle.current.setCenter(nextCenter);
+    }
+  }, [mergedOptions.center]);
+
+  // radius の厳密同期
+  useEffect(() => {
+    if (!circle.current) return;
+
+    const nextRadius = mergedOptions.radius;
+    if (nextRadius === undefined || nextRadius === null) return;
+
+    if (nextRadius !== circle.current.getRadius()) {
+      circle.current.setRadius(nextRadius);
+    }
+  }, [mergedOptions.radius]);
+
+  // map が来たら circle を map に乗せる
+  useEffect(() => {
+    if (!circle.current) return;
+
+    if (!map) {
+      if (map === undefined) {
+        console.error('<Circle> has to be inside a Map component.');
+      }
       return;
     }
 
-    circle.setMap(map);
+    circle.current.setMap(map);
 
     return () => {
-      circle.setMap(null);
+      circle.current?.setMap(null);
     };
   }, [map]);
 
-  // attach and re-attach event-handlers when any of the properties change
+  // イベント購読
   useEffect(() => {
-    if (!circle) return;
+    if (!circle.current) return;
 
-    // Add event listeners
     const gme = google.maps.event;
+
     [
       ['click', 'onClick'],
       ['drag', 'onDrag'],
@@ -100,32 +147,34 @@ function useCircle(props: CircleProps) {
       ['mouseover', 'onMouseOver'],
       ['mouseout', 'onMouseOut']
     ].forEach(([eventName, eventCallback]) => {
-      gme.addListener(circle, eventName, (e: google.maps.MapMouseEvent) => {
+      gme.addListener(circle.current!, eventName, (e: google.maps.MapMouseEvent) => {
         const callback = callbacks.current[eventCallback];
         if (callback) callback(e);
       });
     });
-    gme.addListener(circle, 'radius_changed', () => {
-      const newRadius = circle.getRadius();
+
+    gme.addListener(circle.current, 'radius_changed', () => {
+      const newRadius = circle.current!.getRadius();
       callbacks.current.onRadiusChanged?.(newRadius);
     });
-    gme.addListener(circle, 'center_changed', () => {
-      const newCenter = circle.getCenter();
+
+    gme.addListener(circle.current, 'center_changed', () => {
+      const newCenter = circle.current!.getCenter();
       callbacks.current.onCenterChanged?.(newCenter);
     });
 
     return () => {
-      gme.clearInstanceListeners(circle);
+      if (circle.current) gme.clearInstanceListeners(circle.current);
     };
-  }, [circle]);
+  }, []);
 
-  return circle;
+  return circle.current;
 }
 
 /**
  * Component to render a circle on a map
  */
-export const Circle = forwardRef((props: CircleProps, ref: CircleRef) => {
+export const Circle = forwardRef<google.maps.Circle | null, CircleProps>((props, ref) => {
   const circle = useCircle(props);
 
   useImperativeHandle(ref, () => circle);
