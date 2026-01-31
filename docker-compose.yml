@@ -2,7 +2,7 @@ services:
   frontend:
     build: ./frontend
     env_file:
-      - .env
+      - ./frontend/.env
     ports:
       -  "5173:5173"
     volumes:
