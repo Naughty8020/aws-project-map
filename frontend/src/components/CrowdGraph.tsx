@@ -3,23 +3,22 @@ import ReactApexChart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 import type { Spot } from '../types/spot';
 
-
 type Props = {
   spots: Spot[];
+  selectedSpot: Spot | null;
+  onSelectSpot: (spot: Spot) => void;
 };
 
-export default function CrowdGraph({ spots }: Props) {
-  // X軸（観光地名）
-  const categories = React.useMemo(
-    () => spots.map((s) => s.name),
-    [spots]
-  );
 
-  // 混雑度
-  const data = React.useMemo(
-    () => spots.map((s) => s.crowd),
-    [spots]
-  );
+function baseColor(crowd: number): string {
+  if (crowd < 30) return '#22c55e'; // green
+  if (crowd < 60) return '#eab308'; // yellow
+  return '#ef4444'; // red
+}
+
+export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props){
+  const categories = React.useMemo(() => spots.map((s) => s.name), [spots]);
+  const data = React.useMemo(() => spots.map((s) => s.crowd), [spots]);
 
   const series = React.useMemo(
     () => [
@@ -31,11 +30,27 @@ export default function CrowdGraph({ spots }: Props) {
     [data]
   );
 
+  // ✅ 選択中だけ濃く/暗くして強調
+  const colors = React.useMemo(() => {
+    return spots.map((s) => {
+      if (!selectedSpot) return baseColor(s.crowd);
+      return selectedSpot.name === s.name ? '#111827' : baseColor(s.crowd);
+    });
+  }, [spots, selectedSpot]);
+
   const options: ApexOptions = React.useMemo(
     () => ({
       chart: {
         type: 'bar',
         toolbar: { show: false },
+        events: {
+          // ✅ 棒クリックで選択
+          dataPointSelection: (_event, _chart, config) => {
+            const idx = config.dataPointIndex;
+            const spot = spots[idx];
+            if (spot) onSelectSpot(spot);
+          },
+        },
       },
 
       plotOptions: {
@@ -46,11 +61,7 @@ export default function CrowdGraph({ spots }: Props) {
         },
       },
 
-      colors: spots.map((s) => {
-        if (s.crowd < 30) return '#22c55e'; // green
-        if (s.crowd < 60) return '#eab308'; // yellow
-        return '#ef4444'; // red
-      }),
+      colors,
 
       dataLabels: {
         enabled: false,
@@ -63,6 +74,7 @@ export default function CrowdGraph({ spots }: Props) {
       xaxis: {
         categories,
         labels: {
+          rotate: -45, // 多いとき見やすい
           style: {
             fontSize: '12px',
           },
@@ -83,17 +95,12 @@ export default function CrowdGraph({ spots }: Props) {
         },
       },
     }),
-    [categories, spots]
+    [categories, colors, onSelectSpot, spots]
   );
 
   return (
     <div className="w-full">
-      <ReactApexChart
-        options={options}
-        series={series}
-        type="bar"
-        height={400}
-      />
+      <ReactApexChart options={options} series={series} type="bar" height={400} />
     </div>
   );
 }
