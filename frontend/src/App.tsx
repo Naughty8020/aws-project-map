@@ -1,25 +1,52 @@
-
-import { useCrowdData } from './hooks/useCrowdData';
-import { hc } from 'hono/client';
-import type { AppType } from '../../backend/src/index'; // バックエンドの型を読み込む
-import Header from '../src/components/Header.tsx';
+import React from 'react';
+import Header from './components/Header';
 import GoogleMap from './components/MapComponents';
-// SSTが発行したURLをここに貼る
-export const client = hc<AppType>('https://kezxwvevrxzfot4frmpdqhsegu0bjjyt.lambda-url.ap-northeast-1.on.aws')
+import CrowdGraph from './components/CrowdGraph';
+import { useCrowdData } from './hooks/useCrowdData';
+import type { Spot } from './types/spot';
 
-function App() {
+export default function App(){
   const { data, isLoading, error } = useCrowdData();
 
+  const spots = data ?? [];
+
+  // ✅ 追加：選択状態（名前で持つと安全＆シンプル）
+  const [selectedSpotName, setSelectedSpotName] = React.useState<string | null>(null);
+
+  const selectedSpot: Spot | null = React.useMemo(() => {
+    if (!selectedSpotName) return null;
+    return spots.find((s) => s.name === selectedSpotName) ?? null;
+  }, [spots, selectedSpotName]);
+
+  const handleSelectSpot = (spot: Spot) => {
+    setSelectedSpotName(spot.name);
+  };
+
   if (isLoading) return <div>読み込み中...</div>;
-  if (error)return <div>エラーが発生しました</div>;
+  if (error) return <div>エラーが発生しました</div>;
 
   return (
     <div>
       <Header />
-      <GoogleMap />
-      <h1>Hono + TanStack Query</h1>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <div className="flex gap-20 p-10 ml-10 mt-16">
+        <div className="flex-[2] min-w-[400px]">
+          <GoogleMap
+            spots={spots}
+            selectedSpot={selectedSpot}
+            onSelectSpot={handleSelectSpot}
+          />
+        </div>
+
+        <div className="flex-[2] flex justify-center">
+          <div className="w-full mt-40 max-w-full">
+            <CrowdGraph
+              spots={spots}
+              selectedSpot={selectedSpot}
+              onSelectSpot={handleSelectSpot}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-export default App

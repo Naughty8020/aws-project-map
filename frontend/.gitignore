@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Vite env
+frontend/.env
+frontend/.env.*.local
+.env
+.env.*.local
+
