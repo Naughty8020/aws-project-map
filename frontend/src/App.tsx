@@ -8,9 +8,6 @@ import type { Spot } from './types/spot';
 export default function App(){
   const { data, isLoading, error } = useCrowdData();
 
-  if (isLoading) return <div>読み込み中...</div>;
-  if (error) return <div>エラーが発生しました</div>;
-
   const spots = data ?? [];
 
   // ✅ 追加：選択状態（名前で持つと安全＆シンプル）
@@ -24,6 +21,9 @@ export default function App(){
   const handleSelectSpot = (spot: Spot) => {
     setSelectedSpotName(spot.name);
   };
+
+  if (isLoading) return <div>読み込み中...</div>;
+  if (error) return <div>エラーが発生しました</div>;
 
   return (
     <div>
