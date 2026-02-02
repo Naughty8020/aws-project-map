@@ -8,10 +8,8 @@ import SelectedSpotCard from './components/SelectedSpotCard';
 
 export default function App() {
   const { data, isLoading, error } = useCrowdData();
-
   const spots: Spot[] = data ?? [];
 
-  // 選択状態
   const [selectedSpotName, setSelectedSpotName] = React.useState<string | null>(null);
 
   const selectedSpot: Spot | null = React.useMemo(() => {
@@ -19,11 +17,9 @@ export default function App() {
     return spots.find((s) => s.name === selectedSpotName) ?? null;
   }, [spots, selectedSpotName]);
 
-  const handleSelectSpot = (spot: Spot) => {
-    setSelectedSpotName(spot.name);
-  };
+  const handleSelectSpot = (spot: Spot) => setSelectedSpotName(spot.name);
 
-  // 任意：Escで解除（気持ちいい）
+  // 任意：Escで解除
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedSpotName(null);
@@ -39,15 +35,8 @@ export default function App() {
     <div>
       <Header />
 
-      {/* ✅ カード表示（Map/Graphの上） */}
-      <div className="px-10 pt-6">
-        <SelectedSpotCard
-          spot={selectedSpot}
-          onClear={() => setSelectedSpotName(null)}
-        />
-      </div>
-
-      <div className="flex gap-20 px-10 pb-10 mt-6">
+      <div className="flex gap-20 px-10 pb-10 mt-16">
+        {/* 左：Map */}
         <div className="flex-[2] min-w-[400px]">
           <GoogleMap
             spots={spots}
@@ -56,13 +45,23 @@ export default function App() {
           />
         </div>
 
-        <div className="flex-[2] flex justify-center">
-          <div className="w-full mt-40 max-w-full">
-            <CrowdGraph
-              spots={spots}
-              selectedSpot={selectedSpot}
-              onSelectSpot={handleSelectSpot}
-            />
+        {/* 右：Card + Graph */}
+        <div className="flex-[2] flex flex-col">
+          {/* ✅ 右側の上だけにカード */}
+          <SelectedSpotCard
+            spot={selectedSpot}
+            onClear={() => setSelectedSpotName(null)}
+          />
+
+          {/* グラフ */}
+          <div className="mt-4 flex justify-center">
+            <div className="w-full mt-40 max-w-full">
+              <CrowdGraph
+                spots={spots}
+                selectedSpot={selectedSpot}
+                onSelectSpot={handleSelectSpot}
+              />
+            </div>
           </div>
         </div>
       </div>
