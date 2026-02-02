@@ -42,3 +42,15 @@ app.get('/api/ai',async (c) => {
 
 export const handler = handle(app)
 export type AppType = typeof app
+
+// --- 追加：docker/ローカル用にHTTPで起動できるようにする ---
+import { serve } from '@hono/node-server'
+
+const port = Number(process.env.PORT ?? 3000)
+
+if (process.env.NODE_ENV !== 'production') {
+  serve({ fetch: app.fetch, port })
+  console.log(`✅ Backend listening on http://localhost:${port}`)
+}
+// ---------------------------------------------------------
+
