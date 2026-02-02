@@ -33,38 +33,39 @@ export default function App() {
 
   return (
     <div>
-      <Header />
+  <Header />
 
-      <div className="flex gap-20 px-10 pb-10 mt-16">
-        {/* 左：Map */}
-        <div className="flex-[2] min-w-[400px]">
-          <GoogleMap
-            spots={spots}
-            selectedSpot={selectedSpot}
-            onSelectSpot={handleSelectSpot}
-          />
-        </div>
+  <div className="flex gap-20 px-10 pb-10 mt-16">
+    {/* 左：Map */}
+    <div className="flex-[2] min-w-[400px]">
+      <GoogleMap
+        spots={spots}
+        selectedSpot={selectedSpot}
+        onSelectSpot={handleSelectSpot}
+      />
+    </div>
 
-        {/* 右：Card + Graph */}
-        <div className="flex-[2] flex flex-col">
-          {/* ✅ 右側の上だけにカード */}
-          <SelectedSpotCard
-            spot={selectedSpot}
-            onClear={() => setSelectedSpotName(null)}
-          />
+    {/* 右：カード（上）＋グラフ（下） */}
+    <div className="flex-[2] flex flex-col h-[700px]">
+      {/* 上半分：カード */}
+      <div className="h-1/2 overflow-hidden">
+        <SelectedSpotCard
+          spot={selectedSpot}
+          onClear={() => setSelectedSpotName(null)}
+        />
+      </div>
 
-          {/* グラフ */}
-          <div className="mt-4 flex justify-center">
-            <div className="w-full mt-40 max-w-full">
-              <CrowdGraph
-                spots={spots}
-                selectedSpot={selectedSpot}
-                onSelectSpot={handleSelectSpot}
-              />
-            </div>
-          </div>
-        </div>
+      {/* 下半分：グラフ */}
+      <div className="h-1/2 flex items-center justify-center">
+        <CrowdGraph
+          spots={spots}
+          selectedSpot={selectedSpot}
+          onSelectSpot={handleSelectSpot}
+        />
       </div>
     </div>
+  </div>
+</div>
+
   );
 }
