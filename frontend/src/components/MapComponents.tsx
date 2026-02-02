@@ -1,7 +1,8 @@
 import '../components/MapComponent.css';
 import type { Spot } from '../types/spot';
-import { APIProvider, Map, useApiIsLoaded } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, useApiIsLoaded,useMap } from '@vis.gl/react-google-maps';
 import { Circle } from './Circle';
+import React from 'react';
 
 type Props = {
   spots: Spot[];
@@ -26,6 +27,9 @@ function MapInner({
 }) {
   const isLoaded = useApiIsLoaded();
 
+  // ✅ Mapインスタンス取得（Mapの子コンポーネントで使える）
+  const map = useMap();
+
   const getCrowdColor = (crowd: number): string => {
     if (crowd < 10) return '#00FF00';
     if (crowd < 20) return '#33FF00';
@@ -43,6 +47,18 @@ function MapInner({
     const scaled = Math.sqrt(c); // 0〜10に圧縮
     return clamp(60 + scaled * 16, 60, 220); // 60m〜220m
   };
+
+  // ✅ Graphクリック/Mapクリックで selectedSpot が変わったら panTo / zoom
+  React.useEffect(() => {
+    if (!map || !selectedSpot) return;
+
+    map.panTo({ lat: selectedSpot.lat, lng: selectedSpot.lng });
+
+    // いまのズームが低いときだけ上げる（ユーザー操作を邪魔しにくい）
+    const currentZoom = map.getZoom() ?? 13;
+    const targetZoom = 15;
+    if (currentZoom < targetZoom) map.setZoom(targetZoom);
+  }, [map, selectedSpot]);
 
   if (!isLoaded) {
     return <div className="w-full h-full flex items-center justify-center">地図を読み込み中...</div>;
