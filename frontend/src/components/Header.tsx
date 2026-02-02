@@ -1,18 +1,12 @@
-'use client'
-
-import { useState } from 'react'
-import '../tailwind.css'
+import { useState } from 'react';
 import {
   Dialog,
   DialogPanel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
   Popover,
   PopoverButton,
   PopoverGroup,
   PopoverPanel,
-} from '@headlessui/react'
+} from '@headlessui/react';
 import {
   ArrowPathIcon,
   Bars3Icon,
@@ -21,8 +15,8 @@ import {
   FingerPrintIcon,
   SquaresPlusIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
+} from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid';
 
 const products = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
@@ -30,43 +24,32 @@ const products = [
   { name: 'Security', description: 'Your customers’ data will be safe and secure', href: '#', icon: FingerPrintIcon },
   { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
   { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
-]
+];
+
 const callsToAction = [
   { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
   { name: 'Contact sales', href: '#', icon: PhoneIcon },
-]
+];
 
-export default function Example() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="bg-gray-900">
-      <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-        <div className="flex lg:flex-1">
+      <nav aria-label="Global" className="mx-auto flex max-w-5xl items-center justify-between p-6 lg:px-8">
+        <div className="flex flex-1">
           <a href="#" className="-m-1.5 p-1.5">
-              <div className="flex items-center space-x-2">
-                <img
-                  alt=""
-                  src="Icon.png"
-                  className="h-8 w-auto"
-                />
-                <span className="text-white text-lg font-semibold">MyAppName</span>
-              </div>
-            </a>
+            <div className="flex items-center space-x-2">
+              <img alt="" src="Icon.png" className="h-8 w-auto" />
+              <span className="text-white text-lg font-semibold">MyAppName</span>
+            </div>
+          </a>
         </div>
-        <div className="flex">
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400"
-          >
-            <span className="sr-only">Open main menu</span>
-            <Bars3Icon aria-hidden="true" className="size-6" />
-          </button>
-        </div>
-        <PopoverGroup className="hidden">
+
+        {/* Desktop nav（必要なら表示を切り替え） */}
+        <PopoverGroup className="hidden lg:flex lg:gap-x-8">
           <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-white">
+            <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-white">
               Product
               <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-500" />
             </PopoverButton>
@@ -79,7 +62,7 @@ export default function Example() {
                 {products.map((item) => (
                   <div
                     key={item.name}
-                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-white/5"
+                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm hover:bg-white/5"
                   >
                     <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-700/50 group-hover:bg-gray-700">
                       <item.icon aria-hidden="true" className="size-6 text-gray-400 group-hover:text-white" />
@@ -94,12 +77,13 @@ export default function Example() {
                   </div>
                 ))}
               </div>
+
               <div className="grid grid-cols-2 divide-x divide-white/10 bg-gray-700/50">
                 {callsToAction.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-white hover:bg-gray-700/50"
+                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm font-semibold text-white hover:bg-gray-700/50"
                   >
                     <item.icon aria-hidden="true" className="size-5 flex-none text-gray-500" />
                     {item.name}
@@ -109,33 +93,38 @@ export default function Example() {
             </PopoverPanel>
           </Popover>
 
-          <a href="#" className="text-sm/6 font-semibold text-white">
+          <a href="#" className="text-sm font-semibold text-white">
             Features
           </a>
-          <a href="#" className="text-sm/6 font-semibold text-white">
+          <a href="#" className="text-sm font-semibold text-white">
             Marketplace
           </a>
-          <a href="#" className="text-sm/6 font-semibold text-white">
+          <a href="#" className="text-sm font-semibold text-white">
             Company
           </a>
         </PopoverGroup>
-        <div className="hidden">
-          <a href="#" className="text-sm/6 font-semibold text-white">
-            Log in <span aria-hidden="true">&rarr;</span>
-          </a>
+
+        {/* Mobile menu button */}
+        <div className="flex lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400"
+          >
+            <span className="sr-only">Open main menu</span>
+            <Bars3Icon aria-hidden="true" className="size-6" />
+          </button>
         </div>
       </nav>
-      <Dialog open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+
+      {/* Mobile menu dialog */}
+      <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen}>
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-gray-900 p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-100/10">
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <div className="flex items-center space-x-2">
-                <img
-                  alt=""
-                  src="Icon.png"
-                  className="h-8 w-auto"
-                />
+                <img alt="" src="Icon.png" className="h-8 w-auto" />
                 <span className="text-white text-lg font-semibold">MyAppName</span>
               </div>
             </a>
@@ -148,29 +137,25 @@ export default function Example() {
               <XMarkIcon aria-hidden="true" className="size-6" />
             </button>
           </div>
+
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-white/10">
               <div className="space-y-2 py-6">
-                <Disclosure as="div" className="-mx-3">
-                  <DisclosurePanel className="mt-2 space-y-2">
-
-                  </DisclosurePanel>
-                </Disclosure>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/5"
                 >
                   Features
                 </a>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/5"
                 >
                   Marketplace
                 </a>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-white hover:bg-white/5"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/5"
                 >
                   Company
                 </a>
@@ -180,6 +165,5 @@ export default function Example() {
         </DialogPanel>
       </Dialog>
     </header>
-  )
+  );
 }
-

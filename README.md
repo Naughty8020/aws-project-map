@@ -9,3 +9,5 @@ docker compose up --build
 sudo docker exec -it awsmap-app-frontend-1 bash
 
 test
+
+test
