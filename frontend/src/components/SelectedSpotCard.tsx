@@ -12,35 +12,54 @@ function crowdLabel(crowd: number) {
 }
 
 export default function SelectedSpotCard({ spot, onClear }: Props) {
-  if (!spot) return null;
+  if (!spot) {
+    return (
+      <div className="h-full flex items-center justify-center border border-dashed rounded-xl text-gray-400">
+        地図またはグラフから観光地を選択
+      </div>
+    );
+  }
 
   const badge = crowdLabel(spot.crowd);
 
   return (
-    <div className="w-full mb-4 rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-4 p-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h2 className="truncate text-lg font-semibold text-gray-900">{spot.name}</h2>
-            <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${badge.cls}`}>
-              {badge.text}
-            </span>
-          </div>
+    <div className="h-full rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      {/* 画像 */}
+      {spot.imageUrl && (
+        <img
+          src={spot.imageUrl}
+          alt={spot.name}
+          className="h-40 w-full object-cover"
+        />
+      )}
 
-          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
-            <span>混雑度：<span className="font-semibold text-gray-900">{spot.crowd}%</span></span>
-            <span>lat：{spot.lat.toFixed(4)}</span>
-            <span>lng：{spot.lng.toFixed(4)}</span>
-          </div>
+      {/* 内容 */}
+      <div className="p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">{spot.name}</h2>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${badge.cls}`}>
+            {badge.text}
+          </span>
         </div>
 
-        <button
-          type="button"
-          onClick={onClear}
-          className="shrink-0 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          解除
-        </button>
+        {spot.description && (
+          <p className="text-sm text-gray-600 leading-relaxed">
+            {spot.description}
+          </p>
+        )}
+
+        <div className="text-sm text-gray-700">
+          混雑度：<span className="font-semibold">{spot.crowd}%</span>
+        </div>
+
+        <div className="mt-auto flex justify-end">
+          <button
+            onClick={onClear}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+          >
+            解除
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,5 +3,7 @@ export type Spot = {
   lat: number;
   lng: number;
   crowd: number;
+  imageUrl?: string;
+  description?: string;
   city: 'kyoto';
 };
