@@ -1,8 +1,9 @@
 import '../components/MapComponent.css';
 import type { Spot } from '../types/spot';
-import { APIProvider, Map, useApiIsLoaded,useMap } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps';
 import { Circle } from './Circle';
 import React from 'react';
+import { fetchKyotoSpots } from '../api/spots.ts'
 
 type Props = {
   spots: Spot[];
@@ -63,6 +64,15 @@ function MapInner({
   if (!isLoaded) {
     return <div className="w-full h-full flex items-center justify-center">地図を読み込み中...</div>;
   }
+
+
+  async function loadSpots() {
+    const spots = await fetchKyotoSpots()
+    console.log(spots) // DynamoDB から取得したデータ
+  }
+
+  loadSpots()
+
 
   return (
     <Map

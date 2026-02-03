@@ -18,7 +18,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.980.0",
+    "@aws-sdk/client-dynamodb": "^3.981.0",
+    "@aws-sdk/lib-dynamodb": "^3.981.0",
     "@hono/node-server": "^1.19.9",
-    "hono": "^4.11.7"
+    "hono": "^4.11.7",
+    "ts-node": "^10.9.2"
   }
 }
