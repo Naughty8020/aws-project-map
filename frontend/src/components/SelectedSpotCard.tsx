@@ -6,9 +6,15 @@ type Props = {
 };
 
 function crowdLabel(crowd: number) {
-  if (crowd < 30) return { text: '空いてる', cls: 'bg-green-100 text-green-800' };
-  if (crowd < 60) return { text: 'ふつう', cls: 'bg-yellow-100 text-yellow-800' };
-  return { text: '混雑', cls: 'bg-red-100 text-red-800' };
+  if (crowd < 10) return { text: 'ガラガラ', cls: 'bg-[#00FF00]/10 text-[#008000]' };
+  if (crowd < 20) return { text: 'とても空いている', cls: 'bg-[#33FF00]/10 text-[#2B8000]' };
+  if (crowd < 30) return { text: '空いている', cls: 'bg-[#66FF00]/10 text-[#558000]' };
+  if (crowd < 40) return { text: 'やや空いている', cls: 'bg-[#99FF00]/10 text-[#7D8000]' };
+  if (crowd < 50) return { text: 'ふつう', cls: 'bg-[#CCFF00]/10 text-[#808000]' };
+  if (crowd < 60) return { text: 'やや混雑', cls: 'bg-[#FFFF00]/10 text-[#808000]' };
+  if (crowd < 70) return { text: '混雑', cls: 'bg-[#FFCC00]/10 text-[#806600]' };
+  if (crowd < 80) return { text: 'かなりの混雑', cls: 'bg-[#FF9900]/10 text-[#804D00]' };
+  return { text: '満員', cls: 'bg-[#FF0000]/10 text-[#800000]' };
 }
 
 export default function SelectedSpotCard({ spot, onClear }: Props) {
