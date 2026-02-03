@@ -11,12 +11,18 @@ type Props = {
 
 
 function baseColor(crowd: number): string {
-  if (crowd < 30) return '#22c55e'; // green
-  if (crowd < 60) return '#eab308'; // yellow
-  return '#ef4444'; // red
+  if (crowd < 10) return '#00FF00';
+  if (crowd < 20) return '#33FF00';
+  if (crowd < 30) return '#66FF00';
+  if (crowd < 40) return '#99FF00';
+  if (crowd < 50) return '#CCFF00';
+  if (crowd < 60) return '#FFFF00';
+  if (crowd < 70) return '#FFCC00';
+  if (crowd < 80) return '#FF9900';
+  return '#FF0000';
 }
 
-export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props){
+export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props) {
   const categories = React.useMemo(() => spots.map((s) => s.name), [spots]);
   const data = React.useMemo(() => spots.map((s) => s.crowd), [spots]);
 
