@@ -1,4 +1,5 @@
 import type { Spot } from '../types/spot';
+import WeatherData from './WeatherComponents';
 
 type Props = {
   spot: Spot | null;
@@ -37,36 +38,58 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
         <div className="absolute inset-0 bg-gray-800" />
       )}
 
-      {/* グラデーションオーバーレイ */}
+      {/* グラデーション */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
       {/* コンテンツ */}
       <div className="absolute inset-0 p-5 flex flex-col justify-between z-10">
-        {/* 上部 */}
-        <div className="flex justify-between items-start">
-          <span className={`backdrop-blur-md rounded-lg px-3 py-1 text-xs font-bold text-white shadow-sm ${badge.color}`}>
+        {/* 上部：混雑ラベル + 天気アイコン */}
+        <div className="flex items-center gap-2">
+          <WeatherData
+            selectedSpot={spot}
+            spots={[]}
+          />
+          <span
+            className={`backdrop-blur-md rounded-2xl px-3 py-1 text-xl font-bold text-white shadow-sm ${badge.color}`}
+          >
             {badge.text}
           </span>
-          <button
-            onClick={onClear}
-            className="rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 text-white transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+
+
         </div>
+
+        {/* クリアボタン（右上） */}
+        <button
+          onClick={onClear}
+          className="absolute top-4 right-4 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 text-white transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
 
         {/* 下部 */}
         <div className="text-white">
-          <h2 className="text-2xl font-bold mb-1 drop-shadow-lg">{spot.name}</h2>
+          <h2 className="text-2xl font-bold mb-1 drop-shadow-lg">
+            {spot.name}
+          </h2>
 
           <div className="flex items-baseline gap-2 text-sm font-medium">
             <span className="text-gray-200 text-xs">混雑度:</span>
             <span className="text-lg font-bold">{spot.crowd}%</span>
           </div>
 
-          {/* ★ ステータスバーのみを小さく調整 */}
           <div className="w-24 h-1 bg-white/20 rounded-full overflow-hidden mb-3 mt-1">
             <div
               className={`h-full transition-all duration-700 ease-out ${badge.color}`}
@@ -84,3 +107,4 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
     </div>
   );
 }
+
