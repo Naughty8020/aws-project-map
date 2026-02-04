@@ -2,6 +2,7 @@
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.968.0",
     "@tanstack/react-query": "^5.90.17",
-    "@tanstack/react-query-devtools": "^5.91.2"
+    "@tanstack/react-query-devtools": "^5.91.2",
+    "react-icons": "^5.5.0"
   }
 }
