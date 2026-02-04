@@ -1,30 +1,18 @@
 import React from 'react';
 import { APIProvider, Map, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps';
 import { Circle } from './Circle';
-import { fetchKyotoSpots } from '../api/spots.ts';
-
-// Spot型
-export interface Spot {
-  name: string;
-  lat: number;
-  lng: number;
-  crowd: number;
-  imageUrl?: string;
-  description?: string;
-  city?: string;
-}
+import type { Spot } from '../types/spot';
 
 // 親コンポーネントのProps
 type Props = {
+  spots: Spot[];
   selectedSpot: Spot | null;
   onSelectSpot: (spot: Spot) => void;
 };
 
 // MapInnerのProps
-interface MapInnerProps {
+interface MapInnerProps extends Props {
   mapId?: string;
-  selectedSpot: Spot | null;
-  onSelectSpot: (spot: Spot) => void;
 }
 
 // 数値を指定範囲にクランプ
@@ -33,24 +21,9 @@ function clamp(n: number, min: number, max: number) {
 }
 
 // MapInnerコンポーネント
-function MapInner({ mapId, selectedSpot, onSelectSpot }: MapInnerProps) {
+function MapInner({ mapId, spots, selectedSpot, onSelectSpot }: MapInnerProps) {
   const isLoaded = useApiIsLoaded();
   const map = useMap();
-  const [spots, setSpots] = React.useState<Spot[]>([]);
-
-  // S3からスポットを取得
-  React.useEffect(() => {
-    async function loadSpots() {
-      try {
-        const data = await fetchKyotoSpots();
-        setSpots(data);
-        console.log('スポットデータを取得:', data);
-      } catch (err) {
-        console.error('スポットデータの取得に失敗:', err);
-      }
-    }
-    loadSpots();
-  }, []);
 
   // 人混み数に応じた色
   const getCrowdColor = (crowd: number): string => {
@@ -121,7 +94,7 @@ function MapInner({ mapId, selectedSpot, onSelectSpot }: MapInnerProps) {
 }
 
 // 親コンポーネント
-export default function GoogleMap({ selectedSpot, onSelectSpot }: Props) {
+export default function GoogleMap({ spots, selectedSpot, onSelectSpot }: Props) {
   const MAP_ID = import.meta.env.VITE_MAP_ID;
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -130,6 +103,7 @@ export default function GoogleMap({ selectedSpot, onSelectSpot }: Props) {
       <APIProvider apiKey={API_KEY ?? ''}>
         <MapInner
           mapId={MAP_ID}
+          spots={spots}
           selectedSpot={selectedSpot}
           onSelectSpot={onSelectSpot}
         />
@@ -137,4 +111,3 @@ export default function GoogleMap({ selectedSpot, onSelectSpot }: Props) {
     </div>
   );
 }
-
