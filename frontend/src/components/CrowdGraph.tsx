@@ -10,6 +10,9 @@ type Props = {
 };
 
 export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props) {
+  // 🔽 初期値を「混雑度 低い順」に変更
+  const [sortType, setSortType] = React.useState<'crowd-desc' | 'crowd-asc' | 'name'>('crowd-asc');
+
   const baseColor = React.useCallback((crowd: number) => {
     if (crowd < 10) return '#00FF00';
     if (crowd < 20) return '#33FF00';
@@ -22,15 +25,32 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     return '#FF0000';
   }, []);
 
-  const categories = React.useMemo(() => spots.map((s) => s.name), [spots]);
-  const data = React.useMemo(() => spots.map((s) => s.crowd), [spots]);
+  // 🔽 ソート処理（default削除）
+  const sortedSpots = React.useMemo(() => {
+    const copy = [...spots];
+
+    switch (sortType) {
+      case 'crowd-desc':
+        return copy.sort((a, b) => b.crowd - a.crowd);
+      case 'crowd-asc':
+        return copy.sort((a, b) => a.crowd - b.crowd);
+      case 'name':
+        return copy.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+      default:
+        return copy;
+    }
+  }, [spots, sortType]);
+
+  const categories = React.useMemo(() => sortedSpots.map((s) => s.name), [sortedSpots]);
+  const data = React.useMemo(() => sortedSpots.map((s) => s.crowd), [sortedSpots]);
   const series = React.useMemo(() => [{ name: '混雑度', data }], [data]);
+
   const colors = React.useMemo(
     () =>
-      spots.map((s) =>
+      sortedSpots.map((s) =>
         selectedSpot?.name === s.name ? '#111827' : baseColor(s.crowd)
       ),
-    [spots, selectedSpot, baseColor]
+    [sortedSpots, selectedSpot, baseColor]
   );
 
   const options: ApexOptions = React.useMemo(
@@ -41,7 +61,7 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
         events: {
           dataPointSelection: (_e, _chart, config) => {
             const idx = config.dataPointIndex;
-            const spot = spots[idx];
+            const spot = sortedSpots[idx];
             if (spot) onSelectSpot(spot);
           },
         },
@@ -52,13 +72,34 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
       colors,
       dataLabels: { enabled: false },
       legend: { show: false },
-      xaxis: { categories, labels: { rotate: -45, style: { fontSize: '12px' } } },
-      yaxis: { min: 0, max: 100, title: { text: '混雑度 (%)' } },
-      tooltip: { y: { formatter: (val: number) => `${val}%` } },
+      xaxis: {
+        categories,
+        labels: { rotate: -45, style: { fontSize: '12px' } },
+      },
+      yaxis: {
+        min: 0,
+        max: 100,
+        title: { text: '混雑度 (%)' },
+      },
+      tooltip: {
+        y: { formatter: (val: number) => `${val}%` },
+      },
     }),
-    [categories, colors, onSelectSpot, spots]
+    [categories, colors, onSelectSpot, sortedSpots]
   );
 
-  return <ReactApexChart options={options} series={series} type="bar" height={400} />;
-}
+  return (
+    <>
+      {/* 🔽 並び替えUI（default削除） */}
+      <div style={{ marginBottom: 12 }}>
+        <select value={sortType} onChange={(e) => setSortType(e.target.value as any)}>
+          <option value="crowd-asc">混雑度 低い順</option>
+          <option value="crowd-desc">混雑度 高い順</option>
+          <option value="name">名前順</option>
+        </select>
+      </div>
 
+      <ReactApexChart options={options} series={series} type="bar" height={400} />
+    </>
+  );
+}
