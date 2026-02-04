@@ -1,3 +1,4 @@
+import React from 'react';
 import type { Spot } from '../types/spot';
 
 type Props = {
@@ -30,16 +31,9 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
 
   return (
     <div className="h-full rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-      {/* 画像 */}
       {spot.imageUrl && (
-        <img
-          src={spot.imageUrl}
-          alt={spot.name}
-          className="h-40 w-full object-cover"
-        />
+        <img src={spot.imageUrl} alt={spot.name} className="h-40 w-full object-cover" />
       )}
-
-      {/* 内容 */}
       <div className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{spot.name}</h2>
@@ -47,17 +41,12 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
             {badge.text}
           </span>
         </div>
-
         {spot.description && (
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {spot.description}
-          </p>
+          <p className="text-sm text-gray-600 leading-relaxed">{spot.description}</p>
         )}
-
         <div className="text-sm text-gray-700">
           混雑度：<span className="font-semibold">{spot.crowd}%</span>
         </div>
-
         <div className="mt-auto flex justify-end">
           <button
             onClick={onClear}
@@ -70,3 +59,4 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
     </div>
   );
 }
+
