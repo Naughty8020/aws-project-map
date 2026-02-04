@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import GoogleMap from './components/MapComponents';
 import CrowdGraph from './components/CrowdGraph';
 import SelectedSpotCard from './components/SelectedSpotCard';
@@ -82,6 +83,7 @@ export default function App() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
