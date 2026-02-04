@@ -44,7 +44,7 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
       <div className="absolute inset-0 p-5 flex flex-col justify-between z-10">
         {/* 上部 */}
         <div className="flex justify-between items-start">
-          <span className={`backdrop-blur-md rounded-lg px-3 py-1 text-xs font-bold text-white shadow-sm ${badge.color}/80`}>
+          <span className={`backdrop-blur-md rounded-lg px-3 py-1 text-xs font-bold text-white shadow-sm ${badge.color}`}>
             {badge.text}
           </span>
           <button
