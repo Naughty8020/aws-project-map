@@ -10,8 +10,9 @@ type Props = {
 };
 
 export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props) {
-  // 🔽 初期値を「混雑度 低い順」に変更
   const [sortType, setSortType] = React.useState<'crowd-desc' | 'crowd-asc' | 'name'>('crowd-asc');
+  const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const baseColor = React.useCallback((crowd: number) => {
     if (crowd < 10) return '#00FF00';
@@ -25,10 +26,8 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     return '#FF0000';
   }, []);
 
-  // 🔽 ソート処理（default削除）
   const sortedSpots = React.useMemo(() => {
     const copy = [...spots];
-
     switch (sortType) {
       case 'crowd-desc':
         return copy.sort((a, b) => b.crowd - a.crowd);
@@ -88,15 +87,77 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     [categories, colors, onSelectSpot, sortedSpots]
   );
 
+  // 🔽 外側クリックで閉じる
+  React.useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
+
   return (
     <>
-      {/* 🔽 並び替えUI（default削除） */}
-      <div style={{ marginBottom: 12 }}>
-        <select value={sortType} onChange={(e) => setSortType(e.target.value as any)}>
-          <option value="crowd-asc">混雑度 低い順</option>
-          <option value="crowd-desc">混雑度 高い順</option>
-          <option value="name">名前順</option>
-        </select>
+      <div ref={dropdownRef} className="relative w-56 mb-3">
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition"
+        >
+          <span className="whitespace-nowrap">
+            並び替え：
+            {sortType === 'crowd-asc' && ' 混雑度 低い順'}
+            {sortType === 'crowd-desc' && ' 混雑度 高い順'}
+            {sortType === 'name' && ' 名前順'}
+          </span>
+          <svg
+            className={`w-5 h-5 transition-transform duration-200 ${
+              open ? 'rotate-180' : ''
+            }`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+                  <div
+            className={`absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200 z-50 ${
+              open
+                ? 'scale-y-100 opacity-100'
+                : 'scale-y-0 opacity-0 pointer-events-none'
+            }`}
+          >
+
+          {[
+            { key: 'crowd-asc', label: '混雑度 低い順' },
+            { key: 'crowd-desc', label: '混雑度 高い順' },
+            { key: 'name', label: '名前順' },
+          ].map((opt) => (
+            <div
+              key={opt.key}
+              onClick={() => {
+                setSortType(opt.key as any);
+                setOpen(false);
+              }}
+              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 transition ${
+                sortType === opt.key ? 'bg-gray-100 font-medium' : ''
+              }`}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
       </div>
 
       <ReactApexChart options={options} series={series} type="bar" height={400} />
