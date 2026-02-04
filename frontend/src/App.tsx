@@ -1,7 +1,6 @@
 import React from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import WeatherData from './components/WeatherComponents';
 import GoogleMap from './components/MapComponents';
 import CrowdGraph from './components/CrowdGraph';
 import SelectedSpotCard from './components/SelectedSpotCard';
@@ -78,8 +77,6 @@ export default function App() {
         </div>
       </main>
 
-      <WeatherData />
-      {/* Footer は自然に一番下へ */}
       <Footer />
     </div>
   );
