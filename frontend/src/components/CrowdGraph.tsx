@@ -107,7 +107,7 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
       <div ref={dropdownRef} className="relative w-56 mb-3 z-50">
         <button
           onClick={() => setOpen((prev) => !prev)}
-          className="w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition whitespace-nowrap"
+          className="w-full flex items-center justify-between px-2 py-1 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition whitespace-nowrap"
         >
           <span>
             並び替え：
