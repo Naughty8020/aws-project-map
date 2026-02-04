@@ -50,41 +50,37 @@ export default function App() {
   if (loading) return <div>読み込み中...</div>;
   if (error) return <div>{error}</div>;
 
-  return (
-    <div>
-      <Header />
-      <div className="flex gap-20 px-10 pb-10 mt-16">
-        {/* 左：Map */}
-        <div className="flex-[2] min-w-[400px]">
-          <GoogleMap
-            spots={spots}
-            selectedSpot={selectedSpot}
-            onSelectSpot={handleSelectSpot}
-          />
-        </div>
 
-        {/* 右：カード＋グラフ */}
-        <div className="flex-[2] flex flex-col h-[700px] gap-4">
-          {/* カード */}
-          <div className="h-1/2 overflow-hidden">
-            <SelectedSpotCard
-              spot={selectedSpot}
-              onClear={() => setSelectedSpotName(null)}
-            />
-          </div>
+return (
+  <div className="min-h-screen flex flex-col">
+    <Header />
 
-          {/* グラフ */}
-          <div className="h-1/2 w-full">
-            <CrowdGraph
-              spots={spots}
-              selectedSpot={selectedSpot}
-              onSelectSpot={handleSelectSpot}
-            />
-          </div>
-        </div>
-      </div>
-      <Footer />
+    {/* main は「必要なだけ伸びる」 */}
+    <main className="flex-1 pt-16">
+  <div
+    className="mx-auto w-full max-w-[1400px] flex items-stretch gap-20 px-10 pb-10
+               h-[min(700px,calc(100vh-220px))]"
+  >
+    <div className="flex-[2] min-w-[400px] h-full">
+      <GoogleMap spots={spots} selectedSpot={selectedSpot} onSelectSpot={handleSelectSpot} />
     </div>
-  );
+
+    <div className="flex-[2] h-full flex flex-col gap-4 min-h-0">
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <SelectedSpotCard spot={selectedSpot} onClear={() => setSelectedSpotName(null)} />
+      </div>
+      <div className="flex-1 min-h-0">
+        <CrowdGraph spots={spots} selectedSpot={selectedSpot} onSelectSpot={handleSelectSpot} />
+      </div>
+    </div>
+  </div>
+</main>
+
+
+    {/* Footer は自然に一番下へ */}
+    <Footer />
+  </div>
+);
+
 }
 
