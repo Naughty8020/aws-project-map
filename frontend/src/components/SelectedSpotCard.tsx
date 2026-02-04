@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Spot } from '../types/spot';
 
 type Props = {

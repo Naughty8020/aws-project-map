@@ -16,19 +16,20 @@ export default function App() {
 
   // S3からデータ取得
   React.useEffect(() => {
-    async function loadSpots() {
-      try {
-        const data = await fetchKyotoSpots();
-        setSpots(data);
-      } catch (err) {
-        console.error(err);
-        setError('データ取得に失敗しました');
-      } finally {
-        setLoading(false);
-      }
+  async function loadSpots() {
+    try {
+      const data = await fetchKyotoSpots();
+      setSpots(data.map((s) => ({ ...s, city: 'kyoto' as const })));
+    } catch (err) {
+      console.error(err);
+      setError('データ取得に失敗しました');
+    } finally {
+      setLoading(false);
     }
-    loadSpots();
-  }, []);
+  }
+  loadSpots();
+}, []);
+
 
   const selectedSpot: Spot | null = React.useMemo(() => {
     if (!selectedSpotName) return null;
