@@ -61,36 +61,38 @@ function MapInner({ mapId, spots, selectedSpot, onSelectSpot }: MapInnerProps) {
   }
 
   return (
-    <Map
-      defaultZoom={13}
-      defaultCenter={{ lat: 35.0116, lng: 135.7681 }}
-      gestureHandling="greedy"
-      {...(mapId ? { mapId } : {})}
-    >
-      {spots.map((spot) => {
-        const isSelected = selectedSpot?.name === spot.name;
+  <Map
+    className="w-full h-full"   // ← これ追加（最重要）
+    defaultZoom={13}
+    defaultCenter={{ lat: 35.0116, lng: 135.7681 }}
+    gestureHandling="greedy"
+    {...(mapId ? { mapId } : {})}
+  >
+    {spots.map((spot) => {
+      const isSelected = selectedSpot?.name === spot.name;
 
-        return (
-          <Circle
-            key={spot.name}
-            center={{ lat: spot.lat, lng: spot.lng }}
-            radius={crowdToRadius(spot.crowd)}
-            onClick={() => onSelectSpot(spot)}
-            options={{
-              clickable: true,
-              fillColor: getCrowdColor(spot.crowd),
-              fillOpacity: isSelected
-                ? 0.28
-                : 0.08 + clamp(spot.crowd / 100, 0, 1) * 0.18,
-              strokeColor: isSelected ? '#111827' : getCrowdColor(spot.crowd),
-              strokeOpacity: isSelected ? 0.9 : 0.35,
-              strokeWeight: isSelected ? 3 : 1,
-            }}
-          />
-        );
-      })}
-    </Map>
-  );
+      return (
+        <Circle
+          key={spot.name}
+          center={{ lat: spot.lat, lng: spot.lng }}
+          radius={crowdToRadius(spot.crowd)}
+          onClick={() => onSelectSpot(spot)}
+          options={{
+            clickable: true,
+            fillColor: getCrowdColor(spot.crowd),
+            fillOpacity: isSelected
+              ? 0.28
+              : 0.08 + clamp(spot.crowd / 100, 0, 1) * 0.18,
+            strokeColor: isSelected ? '#111827' : getCrowdColor(spot.crowd),
+            strokeOpacity: isSelected ? 0.9 : 0.35,
+            strokeWeight: isSelected ? 3 : 1,
+          }}
+        />
+      );
+    })}
+  </Map>
+);
+
 }
 
 // 親コンポーネント
@@ -99,7 +101,7 @@ export default function GoogleMap({ spots, selectedSpot, onSelectSpot }: Props) 
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   return (
-    <div className="w-full max-w-[1000px] h-[700px] mx-auto mt-10 rounded-xl shadow-lg overflow-hidden border border-gray-200">
+    <div className="w-full h-full rounded-xl shadow-lg overflow-hidden border border-gray-200">
       <APIProvider apiKey={API_KEY ?? ''}>
         <MapInner
           mapId={MAP_ID}
@@ -111,3 +113,4 @@ export default function GoogleMap({ spots, selectedSpot, onSelectSpot }: Props) 
     </div>
   );
 }
+
