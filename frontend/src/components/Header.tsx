@@ -16,7 +16,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="relative bg-[url('../../public/1091814.jpg')] h-30 bg-cover bg-[center_bottom_15%]">      {/* background dark overlay */}
+    <header className="relative bg-[url('../../public/1091814.jpg')] h-25 bg-cover bg-[center_bottom_15%]">      {/* background dark overlay */}
       <div className="absolute inset-0 bg-black/60" />
 
       <nav
