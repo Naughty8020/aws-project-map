@@ -1,12 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-// 1. Router 関連のインポートを追加
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen' // 自動生成されるファイル
 import './tailwind.css'
 
-// 2. Client と Router を作成
 const queryClient = new QueryClient()
 const router = createRouter({ routeTree })
 
