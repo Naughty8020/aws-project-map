@@ -4,6 +4,7 @@ import WeatherData from './WeatherComponents';
 type Props = {
   spot: Spot | null;
   onClear: () => void;
+  onOpenDetail: (spot: Spot) => void;
 };
 
 function crowdLabel(crowd: number) {
@@ -14,7 +15,7 @@ function crowdLabel(crowd: number) {
   return { text: '満員', color: 'bg-red-500' };
 }
 
-export default function SelectedSpotCard({ spot, onClear }: Props) {
+export default function SelectedSpotCard({ spot, onClear, onOpenDetail }: Props) {
   if (!spot) {
     return (
       <div className="h-full min-h-[240px] flex items-center justify-center border border-dashed rounded-2xl text-gray-400">
@@ -26,8 +27,10 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
   const badge = crowdLabel(spot.crowd);
 
   return (
-    <div className="relative h-full min-h-[240px] w-full rounded-2xl overflow-hidden shadow-lg group">
-      {/* 背景画像 */}
+    <div
+      className="relative h-full min-h-[240px] w-full rounded-2xl overflow-hidden shadow-lg group cursor-pointer"
+      onClick={() => onOpenDetail(spot)} // ⭐ カード全体クリックで開く
+    >
       {spot.imageUrl ? (
         <img
           src={spot.imageUrl}
@@ -38,52 +41,31 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
         <div className="absolute inset-0 bg-gray-800" />
       )}
 
-      {/* グラデーション */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-      {/* コンテンツ */}
       <div className="absolute inset-0 p-5 flex flex-col justify-between z-10">
-        {/* 上部：混雑ラベル + 天気アイコン */}
         <div className="flex items-center gap-2">
-          <WeatherData
-            selectedSpot={spot}
-            spots={[]}
-          />
+          <WeatherData selectedSpot={spot} spots={[]} />
           <span
             className={`backdrop-blur-md rounded-2xl px-3 py-1 text-xl font-bold text-white shadow-sm ${badge.color}`}
           >
             {badge.text}
           </span>
-
-
         </div>
 
-        {/* クリアボタン（右上） */}
+        {/* ❌ モーダル開かないようにイベント止める */}
         <button
-          onClick={onClear}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClear();
+          }}
           className="absolute top-4 right-4 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 text-white transition-colors"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          ✕
         </button>
 
-        {/* 下部 */}
         <div className="text-white">
-          <h2 className="text-2xl font-bold mb-1 drop-shadow-lg">
-            {spot.name}
-          </h2>
+          <h2 className="text-2xl font-bold mb-1 drop-shadow-lg">{spot.name}</h2>
 
           <div className="flex items-baseline gap-2 text-sm font-medium">
             <span className="text-gray-200 text-xs">混雑度:</span>
@@ -107,4 +89,3 @@ export default function SelectedSpotCard({ spot, onClear }: Props) {
     </div>
   );
 }
-
