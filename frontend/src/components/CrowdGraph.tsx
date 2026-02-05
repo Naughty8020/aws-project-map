@@ -10,10 +10,11 @@ type Props = {
 };
 
 export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props) {
-  // 🔽 初期値を「混雑度 低い順」に変更
   const [sortType, setSortType] = React.useState<'crowd-desc' | 'crowd-asc' | 'name'>('crowd-asc');
+  const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-  const baseColor = React.useCallback((crowd: number) => {
+  const baseColor = (crowd: number) => {
     if (crowd < 10) return '#00FF00';
     if (crowd < 20) return '#33FF00';
     if (crowd < 30) return '#66FF00';
@@ -23,12 +24,10 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     if (crowd < 70) return '#FFCC00';
     if (crowd < 80) return '#FF9900';
     return '#FF0000';
-  }, []);
+  };
 
-  // 🔽 ソート処理（default削除）
   const sortedSpots = React.useMemo(() => {
     const copy = [...spots];
-
     switch (sortType) {
       case 'crowd-desc':
         return copy.sort((a, b) => b.crowd - a.crowd);
@@ -41,65 +40,114 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     }
   }, [spots, sortType]);
 
-  const categories = React.useMemo(() => sortedSpots.map((s) => s.name), [sortedSpots]);
-  const data = React.useMemo(() => sortedSpots.map((s) => s.crowd), [sortedSpots]);
-  const series = React.useMemo(() => [{ name: '混雑度', data }], [data]);
+  const series = [{
+    name: '混雑度',
+    data: sortedSpots.map((s) => ({
+      x: s.name,
+      y: s.crowd,
+      fillColor: selectedSpot?.name === s.name ? '#111827' : baseColor(s.crowd),
+    })),
+  }];
 
-  const colors = React.useMemo(
-    () =>
-      sortedSpots.map((s) =>
-        selectedSpot?.name === s.name ? '#111827' : baseColor(s.crowd)
-      ),
-    [sortedSpots, selectedSpot, baseColor]
-  );
-
-  const options: ApexOptions = React.useMemo(
-    () => ({
-      chart: {
-        type: 'bar',
-        toolbar: { show: false },
-        events: {
-          dataPointSelection: (_e, _chart, config) => {
-            const idx = config.dataPointIndex;
-            const spot = sortedSpots[idx];
-            if (spot) onSelectSpot(spot);
-          },
+  const options: ApexOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: { show: false },
+      events: {
+        dataPointSelection: (_e, _chart, config) => {
+          const spot = sortedSpots[config.dataPointIndex];
+          if (spot) onSelectSpot(spot);
         },
       },
-      plotOptions: {
-        bar: { columnWidth: '45%', distributed: true, borderRadius: 6 },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true, // ← 横棒に変更
+        barHeight: '60%',
+        borderRadius: 4,
       },
-      colors,
-      dataLabels: { enabled: false },
-      legend: { show: false },
-      xaxis: {
-        categories,
-        labels: { rotate: -45, style: { fontSize: '12px' } },
+    },
+    dataLabels: { enabled: false },
+    xaxis: {
+      max: 100,
+      title: { text: '混雑度 (%)' },
+    },
+    yaxis: {
+      labels: {
+        style: { fontSize: '13px' }, // ← 名前が大きく読みやすい
       },
-      yaxis: {
-        min: 0,
-        max: 100,
-        title: { text: '混雑度 (%)' },
-      },
-      tooltip: {
-        y: { formatter: (val: number) => `${val}%` },
-      },
-    }),
-    [categories, colors, onSelectSpot, sortedSpots]
-  );
+    },
+    tooltip: {
+      y: { formatter: (val: number) => `${val}%` },
+    },
+    legend: { show: false },
+  };
+
+  // 上位10件分の高さを計算（1件あたり約45px）
+  const chartHeight = sortedSpots.length * 45;
+
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
 
   return (
     <>
-      {/* 🔽 並び替えUI（default削除） */}
-      <div style={{ marginBottom: 12 }}>
-        <select value={sortType} onChange={(e) => setSortType(e.target.value as any)}>
-          <option value="crowd-asc">混雑度 低い順</option>
-          <option value="crowd-desc">混雑度 高い順</option>
-          <option value="name">名前順</option>
-        </select>
+      {/* ソートUI */}
+      <div ref={dropdownRef} className="relative w-56 mb-3 z-50">
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="w-full flex items-center justify-between px-2 py-1 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition whitespace-nowrap"
+        >
+          <span>
+            並び替え：
+            {sortType === 'crowd-asc' && ' 混雑度 低い順'}
+            {sortType === 'crowd-desc' && ' 混雑度 高い順'}
+            {sortType === 'name' && ' 名前順'}
+          </span>
+          <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
+        </button>
+
+        <div
+          className={`absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200 ${
+            open ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
+          }`}
+        >
+          {[
+            { key: 'crowd-asc', label: '混雑度 低い順' },
+            { key: 'crowd-desc', label: '混雑度 高い順' },
+            { key: 'name', label: '名前順' },
+          ].map((opt) => (
+            <div
+              key={opt.key}
+              onClick={() => {
+                setSortType(opt.key as any);
+                setOpen(false);
+              }}
+              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                sortType === opt.key ? 'bg-gray-100 font-medium' : ''
+              }`}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <ReactApexChart options={options} series={series} type="bar" height={400} />
+      {/* グラフスクロール領域 */}
+      <div className="max-h-[270px] overflow-y-auto pr-2">
+        <ReactApexChart options={options} series={series} type="bar" height={chartHeight} />
+      </div>
     </>
   );
 }
