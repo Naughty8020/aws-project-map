@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 import GoogleMap from './components/MapComponents';
 import CrowdGraph, { type SortMode } from './components/CrowdGraph';
 import SelectedSpotCard from './components/SelectedSpotCard';
+import SpotDetailModal from './components/SpotDetailModal'; // ⭐ 追加
 import { fetchKyotoSpots } from './api/spots';
 import type { Spot } from './types/spot';
 import { sortSpotsByDistance } from './utils/distance';
@@ -14,8 +15,8 @@ export default function App() {
   const [error, setError] = React.useState<string | null>(null);
 
   const [selectedSpotName, setSelectedSpotName] = React.useState<string | null>(null);
+  const [modalSpot, setModalSpot] = React.useState<Spot | null>(null); // ⭐ モーダル用
 
-  // ✅ 現在地（Appで保持）
   const [myPos, setMyPos] = React.useState<{ lat: number; lng: number } | null>(null);
   const [myAcc, setMyAcc] = React.useState<number | null>(null);
   const [sortMode, setSortMode] = React.useState<SortMode>('crowd-asc');
@@ -32,6 +33,7 @@ export default function App() {
 
 
   // S3からデータ取得
+  // データ取得
   React.useEffect(() => {
     async function loadSpots() {
       try {
@@ -54,30 +56,27 @@ export default function App() {
 
   const handleSelectSpot = (spot: Spot) => setSelectedSpotName(spot.name);
 
-  // ✅ 表示用spots（現在地があれば近い順）
+  // 並び替え済みデータ
   const viewSpots = React.useMemo(() => {
-  // distance
-  if (sortMode === 'distance') {
-    if (!myPos) return spots; // 現在地なければ並び替え不可
-    return sortSpotsByDistance(spots, myPos);
-  }
+    if (sortMode === 'distance') {
+      if (!myPos) return spots;
+      return sortSpotsByDistance(spots, myPos);
+    }
 
-  // crowd / name
-  const copy = [...spots];
-  switch (sortMode) {
-    case 'crowd-asc':
-      return copy.sort((a, b) => a.crowd - b.crowd);
-    case 'crowd-desc':
-      return copy.sort((a, b) => b.crowd - a.crowd);
-    case 'name':
-      return copy.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-    default:
-      return copy;
-  }
-}, [spots, myPos, sortMode]);
+    const copy = [...spots];
+    switch (sortMode) {
+      case 'crowd-asc':
+        return copy.sort((a, b) => a.crowd - b.crowd);
+      case 'crowd-desc':
+        return copy.sort((a, b) => b.crowd - a.crowd);
+      case 'name':
+        return copy.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+      default:
+        return copy;
+    }
+  }, [spots, myPos, sortMode]);
 
-
-  // Escで選択解除
+  // Escでカード選択解除
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedSpotName(null);
@@ -120,11 +119,15 @@ export default function App() {
               <SelectedSpotCard
                 spot={selectedSpot}
                 onClear={() => setSelectedSpotName(null)}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <SelectedSpotCard
+                spot={selectedSpot}
+                onClear={() => setSelectedSpotName(null)}
+                onOpenDetail={(spot) => setModalSpot(spot)} // ⭐ モーダル開く
               />
             </div>
 
             <div className="flex-1 min-h-0">
-              {/* ✅ 右ペインは viewSpots を使う */}
               <CrowdGraph
                 spots={viewSpots}
                 selectedSpot={selectedSpot}
@@ -137,6 +140,14 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {/* ⭐ 詳細モーダル */}
+      {modalSpot && (
+        <SpotDetailModal
+          spot={modalSpot}
+          onClose={() => setModalSpot(null)}
+        />
+      )}
 
       <Footer />
     </div>
