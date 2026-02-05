@@ -4,6 +4,8 @@ import { Circle } from './Circle';
 import LocationOverlay from './LocationOverlay';
 import CurrentLocationControl from './CurrentLocationControl';
 import type { Spot } from '../types/spot';
+import SelectedSpotInfoWindow from './SelectedSpotInfoWindow';
+
 
 type Props = {
   spots: Spot[];
@@ -16,6 +18,7 @@ type Props = {
 
   // ✅ Mapが取得したらAppへ通知
   onLocationChange?: (pos: google.maps.LatLngLiteral, acc?: number) => void;
+  onShowDetail?: () => void;
 };
 
 interface MapInnerProps extends Props {
@@ -34,6 +37,7 @@ function MapInner({
   myPos,
   myAcc,
   onLocationChange,
+  onShowDetail,
 }: MapInnerProps) {
   const isLoaded = useApiIsLoaded();
   const map = useMap();
@@ -97,6 +101,7 @@ function MapInner({
   };
 
   React.useEffect(() => {
+
     if (!map || !selectedSpot) return;
 
     map.panTo({ lat: selectedSpot.lat, lng: selectedSpot.lng });
@@ -133,6 +138,15 @@ function MapInner({
         {...(mapId ? { mapId } : {})}
       >
         <LocationOverlay position={effectivePos} accuracyMeters={effectiveAcc} />
+
+            {/* ✅ 選択中スポットの吹き出し */}
+        <SelectedSpotInfoWindow
+          spot={selectedSpot}
+          myPos={effectivePos}
+          onClose={() => onSelectSpot(null as any)}
+          onShowDetail={onShowDetail}
+        />
+
 
         {spots.map((spot) => {
           const isSelected = selectedSpot?.name === spot.name;

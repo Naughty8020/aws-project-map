@@ -20,6 +20,16 @@ export default function App() {
   const [myAcc, setMyAcc] = React.useState<number | null>(null);
   const [sortMode, setSortMode] = React.useState<SortMode>('crowd-asc');
 
+  const detailPanelRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToDetail = React.useCallback(() => {
+    detailPanelRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }, []);
+
+
 
   // S3からデータ取得
   React.useEffect(() => {
@@ -90,23 +100,29 @@ export default function App() {
               spots={spots}
               selectedSpot={selectedSpot}
               onSelectSpot={handleSelectSpot}
-              // ✅ Mapで取れた現在地をAppに反映
               onLocationChange={(pos, acc) => {
                 setMyPos(pos);
                 setMyAcc(acc ?? null);
-                setSortMode('distance'); // ← 追加
+                setSortMode('distance');
               }}
-
-              // ✅ Map側で現在地を表示する用（MapがApp stateを優先できる）
               myPos={myPos}
               myAcc={myAcc}
+              onShowDetail={scrollToDetail}   // ✅ これを追加
             />
+
           </div>
 
           <div className="flex-[2] h-full flex flex-col gap-4 min-h-0">
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <SelectedSpotCard spot={selectedSpot} onClear={() => setSelectedSpotName(null)} />
+            <div
+              ref={detailPanelRef}
+              className="flex-1 min-h-0 overflow-hidden"
+            >
+              <SelectedSpotCard
+                spot={selectedSpot}
+                onClear={() => setSelectedSpotName(null)}
+              />
             </div>
+
             <div className="flex-1 min-h-0">
               {/* ✅ 右ペインは viewSpots を使う */}
               <CrowdGraph
