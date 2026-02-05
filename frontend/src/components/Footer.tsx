@@ -31,9 +31,11 @@ export default function Footer() {
           </div>
 
           {/* 3. ポリシーリンク */}
-          <div className="order-3 flex justify-center md:justify-end text-sm gap-4">
-              <a href="/privacy" className="text-gray-400 hover:underline">Privacy Policy</a>
-              <a href="/terms" className="text-gray-400 hover:underline">Terms of Service</a>
+          <div className="order-3 flex flex-wrap justify-center md:justify-end text-sm gap-4">
+            <a href="/news" className="text-gray-400 hover:underline">お知らせ</a>
+            <a href="/contact" className="text-gray-400 hover:underline">お問い合わせ</a>
+            <a href="/privacy" className="text-gray-400 hover:underline">Privacy Policy</a>
+            <a href="/terms" className="text-gray-400 hover:underline">Terms of Service</a>
           </div>
 
         </div>
