@@ -57,10 +57,9 @@ export default function App() {
       <Header />
 
       {/* main は「必要なだけ伸びる」 */}
-      <main className="flex-1 pt-16 px-10 h-[300px]">
+      <main className="flex-1 pt-16 px-10">
         <div
-          className="mx-auto w-full max-w-[1700px] flex items-stretch gap-20 px-0 pb-10 h-[1000px]
-               h-[min(2200px,calc(100vh-220px))]"
+          className="mx-auto w-full max-w-[1700px] flex items-stretch gap-20 pb-10 h-[calc(100vh-220px)]"
         >
           <div className="flex-[2] min-w-[400px] h-full">
             <GoogleMap spots={spots} selectedSpot={selectedSpot} onSelectSpot={handleSelectSpot} />
