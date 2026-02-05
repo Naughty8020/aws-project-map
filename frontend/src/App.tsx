@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GoogleMap from './components/MapComponents';
-import CrowdGraph from './components/CrowdGraph';
+import CrowdGraph, { type SortMode } from './components/CrowdGraph';
 import SelectedSpotCard from './components/SelectedSpotCard';
 import { fetchKyotoSpots } from './api/spots';
 import type { Spot } from './types/spot';
@@ -18,6 +18,8 @@ export default function App() {
   // ✅ 現在地（Appで保持）
   const [myPos, setMyPos] = React.useState<{ lat: number; lng: number } | null>(null);
   const [myAcc, setMyAcc] = React.useState<number | null>(null);
+  const [sortMode, setSortMode] = React.useState<SortMode>('crowd-asc');
+
 
   // S3からデータ取得
   React.useEffect(() => {
@@ -44,9 +46,26 @@ export default function App() {
 
   // ✅ 表示用spots（現在地があれば近い順）
   const viewSpots = React.useMemo(() => {
-    if (!myPos) return spots;
+  // distance
+  if (sortMode === 'distance') {
+    if (!myPos) return spots; // 現在地なければ並び替え不可
     return sortSpotsByDistance(spots, myPos);
-  }, [spots, myPos]);
+  }
+
+  // crowd / name
+  const copy = [...spots];
+  switch (sortMode) {
+    case 'crowd-asc':
+      return copy.sort((a, b) => a.crowd - b.crowd);
+    case 'crowd-desc':
+      return copy.sort((a, b) => b.crowd - a.crowd);
+    case 'name':
+      return copy.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+    default:
+      return copy;
+  }
+}, [spots, myPos, sortMode]);
+
 
   // Escで選択解除
   React.useEffect(() => {
@@ -75,7 +94,9 @@ export default function App() {
               onLocationChange={(pos, acc) => {
                 setMyPos(pos);
                 setMyAcc(acc ?? null);
+                setSortMode('distance'); // ← 追加
               }}
+
               // ✅ Map側で現在地を表示する用（MapがApp stateを優先できる）
               myPos={myPos}
               myAcc={myAcc}
@@ -92,6 +113,9 @@ export default function App() {
                 spots={viewSpots}
                 selectedSpot={selectedSpot}
                 onSelectSpot={handleSelectSpot}
+                sortMode={sortMode}
+                onSortModeChange={setSortMode}
+                canSortByDistance={!!myPos}
               />
             </div>
           </div>
