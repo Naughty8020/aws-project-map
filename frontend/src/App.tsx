@@ -13,16 +13,13 @@ export default function App() {
   const [spots, setSpots] = React.useState<Spot[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-
   const [selectedSpotName, setSelectedSpotName] = React.useState<string | null>(null);
   const [modalSpot, setModalSpot] = React.useState<Spot | null>(null); // ⭐ モーダル用
-
   const [myPos, setMyPos] = React.useState<{ lat: number; lng: number } | null>(null);
   const [myAcc, setMyAcc] = React.useState<number | null>(null);
   const [sortMode, setSortMode] = React.useState<SortMode>('crowd-asc');
 
   const detailPanelRef = React.useRef<HTMLDivElement>(null);
-
   const scrollToDetail = React.useCallback(() => {
     detailPanelRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -30,10 +27,7 @@ export default function App() {
     });
   }, []);
 
-
-
   // S3からデータ取得
-  // データ取得
   React.useEffect(() => {
     async function loadSpots() {
       try {
@@ -89,67 +83,60 @@ export default function App() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+  <div className="min-h-screen flex flex-col">
+    <Header />
 
-      <main className="flex-1 pt-16 px-10">
-        <div className="mx-auto w-full max-w-[1700px] flex items-stretch gap-20 pb-10 h-[calc(100vh-220px)]">
-          <div className="flex-[2] min-w-[400px] h-full">
-            <GoogleMap
-              spots={spots}
+    <main className="flex-1 pt-16 px-10">
+      <div className="mx-auto w-full max-w-[1700px] flex items-stretch gap-20 pb-10 h-[calc(100vh-220px)]">
+        <div className="flex-[2] min-w-[400px] h-full">
+          <GoogleMap
+            spots={spots}
+            selectedSpot={selectedSpot}
+            onSelectSpot={handleSelectSpot}
+            onLocationChange={(pos, acc) => {
+              setMyPos(pos);
+              setMyAcc(acc ?? null);
+              setSortMode('distance');
+            }}
+            myPos={myPos}
+            myAcc={myAcc}
+            onShowDetail={scrollToDetail}
+          />
+        </div>
+
+        <div className="flex-[2] h-full flex flex-col gap-4 min-h-0">
+          {/* ✅ スクロール先 */}
+          <div ref={detailPanelRef} className="flex-1 min-h-0 overflow-hidden">
+            <SelectedSpotCard
+              spot={selectedSpot}
+              onClear={() => setSelectedSpotName(null)}
+              onOpenDetail={(spot) => setModalSpot(spot)}
+            />
+          </div>
+
+          <div className="flex-1 min-h-0">
+            <CrowdGraph
+              spots={viewSpots}
               selectedSpot={selectedSpot}
               onSelectSpot={handleSelectSpot}
-              onLocationChange={(pos, acc) => {
-                setMyPos(pos);
-                setMyAcc(acc ?? null);
-                setSortMode('distance');
-              }}
-              myPos={myPos}
-              myAcc={myAcc}
-              onShowDetail={scrollToDetail}   // ✅ これを追加
+              sortMode={sortMode}
+              onSortModeChange={setSortMode}
+              canSortByDistance={!!myPos}
             />
-
-          </div>
-
-          <div className="flex-[2] h-full flex flex-col gap-4 min-h-0">
-            <div
-              ref={detailPanelRef}
-              className="flex-1 min-h-0 overflow-hidden"
-            >
-              <SelectedSpotCard
-                spot={selectedSpot}
-                onClear={() => setSelectedSpotName(null)}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <SelectedSpotCard
-                spot={selectedSpot}
-                onClear={() => setSelectedSpotName(null)}
-                onOpenDetail={(spot) => setModalSpot(spot)} // ⭐ モーダル開く
-              />
-            </div>
-
-            <div className="flex-1 min-h-0">
-              <CrowdGraph
-                spots={viewSpots}
-                selectedSpot={selectedSpot}
-                onSelectSpot={handleSelectSpot}
-                sortMode={sortMode}
-                onSortModeChange={setSortMode}
-                canSortByDistance={!!myPos}
-              />
-            </div>
           </div>
         </div>
-      </main>
+      </div>
+    </main>
 
-      {/* ⭐ 詳細モーダル */}
-      {modalSpot && (
-        <SpotDetailModal
-          spot={modalSpot}
-          onClose={() => setModalSpot(null)}
-        />
-      )}
-
-      <Footer />
-    </div>
-  );
+    {/* ⭐ 詳細モーダル */}
+    {modalSpot && (
+      <SpotDetailModal
+        spot={modalSpot}
+        onClose={() => setModalSpot(null)}
+      />
+    )}
+    
+    <Footer />
+  </div>
+);
 }
