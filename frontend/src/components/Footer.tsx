@@ -18,7 +18,7 @@ export default function Footer() {
       <p className="text-gray-300 text-sm mt-3 tracking-wide">
            SUKI MAP
       </p>
-      </div>
+</div>
 
         {/* Main Footer Content */}
         <div className="w-full flex flex-col md:flex-row md:justify-between md:items-center gap-6 md:gap-0">
