@@ -119,9 +119,8 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
         </button>
 
         <div
-          className={`absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200 ${
-            open ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
-          }`}
+          className={`absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200 ${open ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
+            }`}
         >
           {[
             { key: 'crowd-asc', label: '混雑度 低い順' },
@@ -134,9 +133,8 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
                 setSortType(opt.key as any);
                 setOpen(false);
               }}
-              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                sortType === opt.key ? 'bg-gray-100 font-medium' : ''
-              }`}
+              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortType === opt.key ? 'bg-gray-100 font-medium' : ''
+                }`}
             >
               {opt.label}
             </div>
