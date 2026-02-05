@@ -3,14 +3,27 @@ import ReactApexChart from 'react-apexcharts';
 import type { ApexOptions } from 'apexcharts';
 import type { Spot } from '../types/spot';
 
+export type SortMode = 'crowd-asc' | 'crowd-desc' | 'name' | 'distance';
+
 type Props = {
-  spots: Spot[];
+  spots: Spot[]; // ← App側で並び替え済みの配列が来る
   selectedSpot: Spot | null;
   onSelectSpot: (spot: Spot) => void;
+
+  // ✅ 追加：App側の並び替えモード
+  sortMode: SortMode;
+  onSortModeChange: (mode: SortMode) => void;
+  canSortByDistance: boolean;
 };
 
-export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props) {
-  const [sortType, setSortType] = React.useState<'crowd-desc' | 'crowd-asc' | 'name'>('crowd-asc');
+export default function CrowdGraph({
+  spots,
+  selectedSpot,
+  onSelectSpot,
+  sortMode,
+  onSortModeChange,
+  canSortByDistance,
+}: Props) {
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -26,28 +39,16 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     return '#FF0000';
   };
 
-  const sortedSpots = React.useMemo(() => {
-    const copy = [...spots];
-    switch (sortType) {
-      case 'crowd-desc':
-        return copy.sort((a, b) => b.crowd - a.crowd);
-      case 'crowd-asc':
-        return copy.sort((a, b) => a.crowd - b.crowd);
-      case 'name':
-        return copy.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-      default:
-        return copy;
-    }
-  }, [spots, sortType]);
-
-  const series = [{
-    name: '混雑度',
-    data: sortedSpots.map((s) => ({
-      x: s.name,
-      y: s.crowd,
-      fillColor: selectedSpot?.name === s.name ? '#111827' : baseColor(s.crowd),
-    })),
-  }];
+  const series = [
+    {
+      name: '混雑度',
+      data: spots.map((s) => ({
+        x: s.name,
+        y: s.crowd,
+        fillColor: selectedSpot?.name === s.name ? '#111827' : baseColor(s.crowd),
+      })),
+    },
+  ];
 
   const options: ApexOptions = {
     chart: {
@@ -55,14 +56,14 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
       toolbar: { show: false },
       events: {
         dataPointSelection: (_e, _chart, config) => {
-          const spot = sortedSpots[config.dataPointIndex];
+          const spot = spots[config.dataPointIndex];
           if (spot) onSelectSpot(spot);
         },
       },
     },
     plotOptions: {
       bar: {
-        horizontal: true, // ← 横棒に変更
+        horizontal: true,
         barHeight: '60%',
         borderRadius: 4,
       },
@@ -74,7 +75,7 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     },
     yaxis: {
       labels: {
-        style: { fontSize: '13px' }, // ← 名前が大きく読みやすい
+        style: { fontSize: '13px' },
       },
     },
     tooltip: {
@@ -83,14 +84,11 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     legend: { show: false },
   };
 
-  // 上位10件分の高さを計算（1件あたり約45px）
-  const chartHeight = sortedSpots.length * 45;
+  const chartHeight = spots.length * 45;
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false);
     };
     const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     document.addEventListener('mousedown', handleClickOutside);
@@ -101,40 +99,57 @@ export default function CrowdGraph({ spots, selectedSpot, onSelectSpot }: Props)
     };
   }, []);
 
+  const labelOf = (m: SortMode) => {
+    if (m === 'crowd-asc') return '混雑度 低い順';
+    if (m === 'crowd-desc') return '混雑度 高い順';
+    if (m === 'name') return '名前順';
+    return '現在地から近い順';
+  };
+
+  const optionsList: { key: SortMode; label: string; disabled?: boolean }[] = [
+    { key: 'crowd-asc', label: '混雑度 低い順' },
+    { key: 'crowd-desc', label: '混雑度 高い順' },
+    { key: 'name', label: '名前順' },
+    {
+      key: 'distance',
+      label: canSortByDistance ? '現在地から近い順' : '現在地から近い順（現在地未取得）',
+      disabled: !canSortByDistance,
+    },
+  ];
+
   return (
     <>
       {/* ソートUI */}
-      <div ref={dropdownRef} className="relative w-56 mb-3 z-50">
+      <div ref={dropdownRef} className="relative w-72 mb-3 z-50">
         <button
+          type="button"
           onClick={() => setOpen((prev) => !prev)}
           className="w-full flex items-center justify-between px-2 py-1 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition whitespace-nowrap"
         >
-          <span>
-            並び替え：
-            {sortType === 'crowd-asc' && ' 混雑度 低い順'}
-            {sortType === 'crowd-desc' && ' 混雑度 高い順'}
-            {sortType === 'name' && ' 名前順'}
-          </span>
+          <span>並び替え： {labelOf(sortMode)}</span>
           <span className={`transition-transform ${open ? 'rotate-180' : ''}`}>▼</span>
         </button>
 
         <div
-          className={`absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200 ${open ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none'
-            }`}
+          className={[
+            'absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden transform origin-top transition-all duration-200',
+            open ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 pointer-events-none',
+          ].join(' ')}
         >
-          {[
-            { key: 'crowd-asc', label: '混雑度 低い順' },
-            { key: 'crowd-desc', label: '混雑度 高い順' },
-            { key: 'name', label: '名前順' },
-          ].map((opt) => (
+          {optionsList.map((opt) => (
             <div
               key={opt.key}
               onClick={() => {
-                setSortType(opt.key as any);
+                if (opt.disabled) return;
+                onSortModeChange(opt.key);
                 setOpen(false);
               }}
-              className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${sortType === opt.key ? 'bg-gray-100 font-medium' : ''
-                }`}
+              className={[
+                'px-4 py-2 select-none',
+                opt.disabled ? 'text-gray-400 cursor-not-allowed bg-white' : 'cursor-pointer hover:bg-gray-100',
+                sortMode === opt.key ? 'bg-gray-100 font-medium' : '',
+              ].join(' ')}
+              title={opt.disabled ? '現在地を取得すると使えます' : undefined}
             >
               {opt.label}
             </div>
