@@ -54,12 +54,12 @@ export default function Header() {
           <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
             Weather
           </Link>
-          <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Place
+          <Link to="/event" className="text-sm font-semibold text-white hover:text-emerald-300">
+            event
           </Link>
-          <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Setting
-          </Link>
+          <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
+            Company
+          </a>
         </PopoverGroup>
 
         {/* Mobile button */}
@@ -121,12 +121,12 @@ export default function Header() {
                         Weather
                       </Link>
                       {/* 3. text-black を text-white に修正 */}
-                      <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        Marketplace
+                      <Link to="/event" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
+                        event
                       </Link>
-                      <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        Settings
-                      </Link>
+                      <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
+                        Company
+                      </a>
                     </div>
                   </div>
                 </div>
