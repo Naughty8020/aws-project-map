@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeatherRouteImport } from './routes/weather'
+import { Route as EventRouteImport } from './routes/event'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WeatherRoute = WeatherRouteImport.update({
   id: '/weather',
   path: '/weather',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventRoute = EventRouteImport.update({
+  id: '/event',
+  path: '/event',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/event': typeof EventRoute
   '/weather': typeof WeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/event': typeof EventRoute
   '/weather': typeof WeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/event': typeof EventRoute
   '/weather': typeof WeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/weather'
+  fullPaths: '/' | '/event' | '/weather'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/weather'
-  id: '__root__' | '/' | '/weather'
+  to: '/' | '/event' | '/weather'
+  id: '__root__' | '/' | '/event' | '/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EventRoute: typeof EventRoute
   WeatherRoute: typeof WeatherRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/weather'
       fullPath: '/weather'
       preLoaderRoute: typeof WeatherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/event': {
+      id: '/event'
+      path: '/event'
+      fullPath: '/event'
+      preLoaderRoute: typeof EventRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EventRoute: EventRoute,
   WeatherRoute: WeatherRoute,
 }
 export const routeTree = rootRouteImport

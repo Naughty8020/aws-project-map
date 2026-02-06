@@ -53,9 +53,10 @@ export default function Header() {
 
           <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
             Weather
-          </Link>          <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Marketplace
-          </a>
+          </Link>
+          <Link to="/event" className="text-sm font-semibold text-white hover:text-emerald-300">
+            event
+          </Link>
           <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
             Company
           </a>
@@ -120,9 +121,9 @@ export default function Header() {
                         Weather
                       </Link>
                       {/* 3. text-black を text-white に修正 */}
-                      <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        Marketplace
-                      </a>
+                      <Link to="/event" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
+                        event
+                      </Link>
                       <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
                         Company
                       </a>

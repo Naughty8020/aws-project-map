@@ -21,6 +21,7 @@
     "@aws-sdk/client-dynamodb": "^3.981.0",
     "@aws-sdk/lib-dynamodb": "^3.981.0",
     "@hono/node-server": "^1.19.9",
+    "cheerio": "^1.2.0",
     "hono": "^4.11.7",
     "ts-node": "^10.9.2"
   }
