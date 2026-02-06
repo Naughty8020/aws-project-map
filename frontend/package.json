@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.17",
+    "@tanstack/react-router": "^1.158.1",
     "@vis.gl/react-google-maps": "^1.7.1",
     "apexcharts": "^5.3.6",
     "hono": "^4.11.7",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tanstack/router-plugin": "^1.158.1",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^24.10.9",
     "@types/react": "^19.2.10",
