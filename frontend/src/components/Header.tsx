@@ -26,7 +26,7 @@ export default function Header() {
       >
         {/* Left: Brand */}
         <div className="flex items-center pl-3">
-          <a href="#" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <img
               alt="SUKI"
               src="app-icons.png"
@@ -35,7 +35,7 @@ export default function Header() {
             <span className="text-4xl font-semibold tracking-wide text-gray-200 translate-y-[1px]">
               <span className="text-emerald-300">SU</span>KI MAP
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Desktop nav */}
@@ -53,12 +53,13 @@ export default function Header() {
 
           <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
             Weather
-          </Link>          <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Marketplace
-          </a>
-          <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Company
-          </a>
+          </Link>
+          <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
+            Place
+          </Link>
+          <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
+            Setting
+          </Link>
         </PopoverGroup>
 
         {/* Mobile button */}
@@ -120,12 +121,12 @@ export default function Header() {
                         Weather
                       </Link>
                       {/* 3. text-black を text-white に修正 */}
-                      <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
+                      <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
                         Marketplace
-                      </a>
-                      <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        Company
-                      </a>
+                      </Link>
+                      <Link to="/" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
+                        Settings
+                      </Link>
                     </div>
                   </div>
                 </div>
