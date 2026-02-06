@@ -26,7 +26,7 @@ export default function Header() {
       >
         {/* Left: Brand */}
         <div className="flex items-center pl-3">
-          <a href="#" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <img
               alt="SUKI"
               src="app-icons.png"
@@ -35,7 +35,7 @@ export default function Header() {
             <span className="text-4xl font-semibold tracking-wide text-gray-200 translate-y-[1px]">
               <span className="text-emerald-300">SU</span>KI MAP
             </span>
-          </a>
+          </Link>
         </div>
 
         {/* Desktop nav */}

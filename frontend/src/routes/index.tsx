@@ -127,7 +127,7 @@ export default function IndexPage() {
               />
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 mt-8 min-h-0">
               <CrowdGraph
                 spots={viewSpots}
                 selectedSpot={selectedSpot}
@@ -145,6 +145,7 @@ export default function IndexPage() {
       {modalSpot && (
         <SpotDetailModal
           spot={modalSpot}
+          myPos={myPos}   // ← ★これ追加！！
           onClose={() => setModalSpot(null)}
         />
       )}
