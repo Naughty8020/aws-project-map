@@ -18,7 +18,7 @@ type Props = {
 
   // ✅ Mapが取得したらAppへ通知
   onLocationChange?: (pos: google.maps.LatLngLiteral, acc?: number) => void;
-  onShowDetail?: () => void;
+  onShowDetail?: (spot: Spot) => void; 
 };
 
 interface MapInnerProps extends Props {
@@ -41,6 +41,19 @@ function MapInner({
 }: MapInnerProps) {
   const isLoaded = useApiIsLoaded();
   const map = useMap();
+
+  // ✅ hover と pinned（固定）
+  const [hoverSpotName, setHoverSpotName] = React.useState<string | null>(null);
+  const [pinnedSpotName, setPinnedSpotName] = React.useState<string | null>(null);
+
+  // 表示するスポット：固定が最優先
+  const shownSpot = React.useMemo(() => {
+    const name = pinnedSpotName ?? hoverSpotName;
+    if (!name) return null;
+    return spots.find((s) => s.name === name) ?? null;
+  }, [spots, pinnedSpotName, hoverSpotName]);
+
+  const isPinned = pinnedSpotName !== null;
 
   // ✅ ローカル（保険）: Appが使わない場合でも動くように
   const [locating, setLocating] = React.useState(false);
@@ -100,16 +113,36 @@ function MapInner({
     return clamp(60 + scaled * 16, 60, 220);
   };
 
-  React.useEffect(() => {
+ React.useEffect(() => {
+  if (!map) return;
 
-    if (!map || !selectedSpot) return;
+  // pinned があればそれに寄せる。なければ selectedSpot（グラフ選択）に寄せる
+  const target = (pinnedSpotName
+    ? spots.find((s) => s.name === pinnedSpotName) ?? null
+    : selectedSpot);
 
-    map.panTo({ lat: selectedSpot.lat, lng: selectedSpot.lng });
+  if (!target) return;
 
-    const currentZoom = map.getZoom() ?? 13;
-    const targetZoom = 15;
-    if (currentZoom < targetZoom) map.setZoom(targetZoom);
-  }, [map, selectedSpot]);
+  map.panTo({ lat: target.lat, lng: target.lng });
+
+  const currentZoom = map.getZoom() ?? 13;
+  const targetZoom = 15;
+  if (currentZoom < targetZoom) map.setZoom(targetZoom);
+}, [map, selectedSpot, pinnedSpotName, spots]);
+
+React.useEffect(() => {
+  if (!map) return;
+
+  const listener = map.addListener('click', () => {
+    setPinnedSpotName(null);
+  });
+
+  return () => {
+    google.maps.event.removeListener(listener);
+  };
+}, [map]);
+
+
 
   if (!isLoaded) {
     return <div className="w-full h-full flex items-center justify-center">地図を読み込み中...</div>;
@@ -141,33 +174,53 @@ function MapInner({
 
             {/* ✅ 選択中スポットの吹き出し */}
         <SelectedSpotInfoWindow
-          spot={selectedSpot}
+          spot={shownSpot}
           myPos={effectivePos}
-          onClose={() => onSelectSpot(null as any)}
-          onShowDetail={onShowDetail}
+          onClose={() => setPinnedSpotName(null)} // ✅ ×で固定解除
+          // ✅ 固定中だけ「詳細を見る」を有効化（hover中は出さない/押せない）
+          onShowDetail={isPinned ? onShowDetail : undefined}
         />
 
 
-        {spots.map((spot) => {
-          const isSelected = selectedSpot?.name === spot.name;
+       {spots.map((spot) => {
+          const hovered = hoverSpotName === spot.name;
+          const pinned = pinnedSpotName === spot.name;
 
           return (
             <Circle
               key={spot.name}
               center={{ lat: spot.lat, lng: spot.lng }}
               radius={crowdToRadius(spot.crowd)}
-              onClick={() => onSelectSpot(spot)}
+              onMouseOver={() => {
+                if (pinnedSpotName) return; // 固定中は hover 追従しない
+                setHoverSpotName(spot.name);
+              }}
+              onMouseOut={() => {
+                if (pinnedSpotName) return;
+                setHoverSpotName((prev) => (prev === spot.name ? null : prev));
+              }}
+              onClick={(e) => {
+                e?.stop?.();
+                setPinnedSpotName(spot.name); // ✅ クリックで固定
+                setHoverSpotName(null);       // ✅ プレビュー解除
+                onSelectSpot(spot);           // ✅ 選択状態も更新（右ペイン連動したいなら）
+              }}
               options={{
                 clickable: true,
                 fillColor: getCrowdColor(spot.crowd),
-                fillOpacity: isSelected ? 0.28 : 0.08 + clamp(spot.crowd / 100, 0, 1) * 0.18,
-                strokeColor: isSelected ? '#111827' : getCrowdColor(spot.crowd),
-                strokeOpacity: isSelected ? 0.9 : 0.35,
-                strokeWeight: isSelected ? 3 : 1,
+                fillOpacity: pinned
+                  ? 0.28
+                  : hovered
+                    ? 0.16
+                    : 0.08 + clamp(spot.crowd / 100, 0, 1) * 0.18,
+                strokeColor: pinned ? '#111827' : getCrowdColor(spot.crowd),
+                strokeOpacity: pinned ? 0.9 : hovered ? 0.7 : 0.35,
+                strokeWeight: pinned ? 3 : hovered ? 2 : 1,
               }}
             />
           );
         })}
+
       </Map>
     </div>
   );
