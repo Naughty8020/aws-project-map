@@ -42,6 +42,8 @@ function MapInner({
   const isLoaded = useApiIsLoaded();
   const map = useMap();
 
+  const recenteringRef = React.useRef(false);
+
   // ✅ hover と pinned（固定）
   const [hoverSpotName, setHoverSpotName] = React.useState<string | null>(null);
   const [pinnedSpotName, setPinnedSpotName] = React.useState<string | null>(null);
@@ -69,10 +71,16 @@ function MapInner({
   const handleLocate = React.useCallback(() => {
     if (!geolocationEnabled || !map) return;
 
+    recenteringRef.current = true;
+
+    setPinnedSpotName(null);
+    setHoverSpotName(null);
+
     setLocating(true);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+
         const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const acc = pos.coords.accuracy;
 
@@ -85,6 +93,10 @@ function MapInner({
         if (z < 15) map.setZoom(15);
 
         setLocating(false);
+
+        window.setTimeout(() => {
+          recenteringRef.current = false;
+        }, 300);
       },
       (err) => {
         console.error('geolocation error:', err);
@@ -115,6 +127,8 @@ function MapInner({
 
  React.useEffect(() => {
   if (!map) return;
+
+  if (recenteringRef.current) return;
 
   // pinned があればそれに寄せる。なければ selectedSpot（グラフ選択）に寄せる
   const target = (pinnedSpotName
