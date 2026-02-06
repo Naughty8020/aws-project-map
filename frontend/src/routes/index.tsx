@@ -145,6 +145,7 @@ export default function IndexPage() {
       {modalSpot && (
         <SpotDetailModal
           spot={modalSpot}
+          myPos={myPos}   // ← ★これ追加！！
           onClose={() => setModalSpot(null)}
         />
       )}
