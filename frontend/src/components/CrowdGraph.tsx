@@ -120,7 +120,7 @@ export default function CrowdGraph({
   return (
     <>
       {/* ソートUI */}
-      <div ref={dropdownRef} className="relative w-72 mb-3 z-50">
+      <div ref={dropdownRef} className="relative w-72  z-50">
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
