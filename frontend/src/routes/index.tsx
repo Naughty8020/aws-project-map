@@ -51,6 +51,13 @@ export default function IndexPage() {
     return spots.find((s) => s.name === selectedSpotName) ?? null;
   }, [spots, selectedSpotName]);
 
+  
+  const handleShowDetailFromInfo = React.useCallback((spot: Spot) => {
+    scrollToDetail();     // ✅ 右ペインへ
+    setModalSpot(spot);   // ✅ モーダルを開く
+  }, [scrollToDetail]);
+
+
   const handleSelectSpot = (spot: Spot) => setSelectedSpotName(spot.name);
 
   // 並び替え済みデータ
@@ -76,7 +83,11 @@ export default function IndexPage() {
   // Escでカード選択解除
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedSpotName(null);
+      if (e.key === 'Escape') {
+        setModalSpot(null);
+        setSelectedSpotName(null);
+      }
+
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -94,7 +105,7 @@ export default function IndexPage() {
             <GoogleMap
               spots={spots}
               selectedSpot={selectedSpot}
-              onSelectSpot={handleSelectSpot}
+              onSelectSpot={handleSelectSpot} 
               onLocationChange={(pos, acc) => {
                 setMyPos(pos);
                 setMyAcc(acc ?? null);
@@ -102,7 +113,7 @@ export default function IndexPage() {
               }}
               myPos={myPos}
               myAcc={myAcc}
-              onShowDetail={scrollToDetail}
+              onShowDetail={handleShowDetailFromInfo}
             />
           </div>
 
