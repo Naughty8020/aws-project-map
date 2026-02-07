@@ -1,8 +1,18 @@
+// 1件のイベント型
 export interface KyotoEvent {
-  title: string;
-  period: string;
-  category: string;
-  location: string;
-  link: string;
-  image: string | null;
+  eventId: string;
+  eventName: string;
+  eventDate: string;
+  city: string;
+  detail: string;
+  image?: string | null;
+  category?: string | null;
+  link?: string | null;
+  data: KyotoEvent[];
 }
+
+export interface KyotoEventResponse {
+  success: boolean;
+  data: KyotoEvent[];
+}
+
