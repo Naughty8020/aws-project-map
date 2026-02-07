@@ -1,4 +1,5 @@
 import type { KyotoEvent } from '../types/event.ts';
+
 export const getKyotoEvents = async (): Promise<KyotoEvent[]> => {
   const API_URL = 'http://localhost:3000/api/events';
 
@@ -8,9 +9,12 @@ export const getKyotoEvents = async (): Promise<KyotoEvent[]> => {
 
     const result = await response.json();
     console.log('Fetched events:', result);
-    return result.success ? result.data : [];
+
+    // そのまま配列を返す
+    return Array.isArray(result) ? result : [];
   } catch (error) {
     console.error('Fetch error:', error);
     return [];
   }
 };
+
