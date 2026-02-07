@@ -7,15 +7,30 @@ import {
   PopoverButton,
   PopoverGroup,
 } from '@headlessui/react';
+const translations = {
+  ja: {
+    weather: '天気',
+    event: 'イベント',
+    company: '会社',
+  },
+  en: {
+    weather: 'Weather',
+    event: 'Event',
+    company: 'Company',
+  },
+} as const;
 import {
   Bars3Icon,
   XMarkIcon,
+  GlobeAltIcon,
+  
 } from '@heroicons/react/24/outline';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 export default function Header() {
+ 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const [language, setLanguage] = useState<'ja' | 'en'>('ja');
   return (
     <header className="relative bg-[url('../../public/1091814.jpg')] h-25 bg-cover bg-[center_bottom_15%]">      {/* background dark overlay */}
       <div className="absolute inset-0 bg-black/60" />
@@ -52,27 +67,55 @@ export default function Header() {
           </Popover>
 
           <Link to="/weather" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Weather
+               {translations[language].weather}
           </Link>
           <Link to="/event" className="text-sm font-semibold text-white hover:text-emerald-300">
-            event
+               {translations[language].event}
           </Link>
-          <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
-            Company
-          </a>
+     <a href="#" className="text-sm font-semibold text-white hover:text-emerald-300">
+               {translations[language].company}
+     </a>
         </PopoverGroup>
 
-        {/* Mobile button */}
-        <div className="flex pr-3">
+        {/* Right side */}
+    <div className="flex items-center gap-[1px] pr-1">
+        <Popover className="relative">
+        <PopoverButton className="flex items-center gap-1 rounded-md px-1 py-1 text-white/80 hover:text-white hover:bg-white/10">
+        <GlobeAltIcon className="h-8 w-8" />
+      <span className="text-sm font-semibold">
+          {language === 'ja' ? 'JA' : 'EN'}
+      </span>
+        </PopoverButton>
+
+            <Popover.Panel className="absolute right-0 mt-2 w-28 rounded-lg bg-gray-900 shadow-lg ring-1 ring-black/10">
           <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className="inline-flex items-center justify-center rounded-md p-2  text-white/80 hover:text-white hover:bg-white/10"
-          >
-            <span className="sr-only">Open main menu</span>
-            <Bars3Icon aria-hidden="true" className="size-10" />
-          </button>
-        </div>
+        onClick={() => setLanguage('ja')}
+        className={`block w-full px-4 py-2 text-left text-sm hover:bg-white/10 ${
+          language === 'ja' ? 'text-emerald-300' : 'text-white'
+        }`}
+      >
+        日本語
+      </button>
+      <button
+        onClick={() => setLanguage('en')}
+        className={`block w-full px-4 py-2 text-left text-sm hover:bg-white/10 ${
+          language === 'en' ? 'text-emerald-300' : 'text-white'
+        }`}
+      >
+        English
+      </button>
+    </Popover.Panel>
+  </Popover>
+
+  {/* ☰ Mobile menu */}
+    <button
+         type="button"
+         onClick={() => setMobileMenuOpen(true)}
+         className="inline-flex items-center justify-center rounded-md p-2 text-white/80 hover:text-white hover:bg-white/10"
+  >
+    <Bars3Icon aria-hidden="true" className="size-10" />
+    </button>
+  </div>
       </nav>
 
       {/* Mobile menu */}
@@ -117,16 +160,21 @@ export default function Header() {
                         to="/weather"
                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10"
                         onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Weather
+>
+                        {translations[language].weather}
                       </Link>
-                      {/* 3. text-black を text-white に修正 */}
-                      <Link to="/event" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        event
+                      <Link
+                        to="/event"
+                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10"
+>
+                        {translations[language].event}
                       </Link>
-                      <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10">
-                        Company
-                      </a>
+                      <a
+  href="#"
+  className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold text-white hover:bg-white/10"
+>
+  {translations[language].company}
+</a>
                     </div>
                   </div>
                 </div>
