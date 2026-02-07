@@ -65,11 +65,11 @@ app.post('/api/sync-spots', async (c) => {
         const newSpot = { ...spot, crowd: isNaN(aiScore) ? spot.crowd : aiScore };
         console.log(`Updated ${spot.name}: ${spot.crowd} -> ${newSpot.crowd}`);
 
-        // DynamoDBに保存
-        await ddb.send(new PutCommand({
-          TableName: SPOTS_TABLE,
-          Item: newSpot,
-        }));
+        // // DynamoDBに保存
+        // await ddb.send(new PutCommand({
+        //   TableName: SPOTS_TABLE,
+        //   Item: newSpot,
+        // }));
 
         return newSpot;
       } catch (e) {

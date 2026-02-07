@@ -251,8 +251,8 @@ export default function GoogleMap(props: Props) {
     const runSync = async () => {
       try {
         console.log("Starting AI Sync...");
-        await syncAiSpots();
-        console.log("AI Sync Completed!");
+        const res = await syncAiSpots();
+        console.log("AI Sync Completed!", res);
       } catch (err) {
         console.error("AI Sync Failed:", err);
       }
