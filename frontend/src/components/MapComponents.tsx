@@ -247,19 +247,19 @@ export default function GoogleMap(props: Props) {
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   // ✅ 追加：コンポーネントがマウントされた時に実行
-  React.useEffect(() => {
-    const runSync = async () => {
-      try {
-        console.log("Starting AI Sync...");
-        const res = await syncAiSpots();
-        console.log("AI Sync Completed!", res);
-      } catch (err) {
-        console.error("AI Sync Failed:", err);
-      }
-    };
-
-    runSync();
-  }, []); // 空の配列を渡すことで1回だけ実行される
+  // React.useEffect(() => {
+  //   const runSync = async () => {
+  //     try {
+  //       console.log("Starting AI Sync...");
+  //       const res = await syncAiSpots();
+  //       console.log("AI Sync Completed!", res);
+  //     } catch (err) {
+  //       console.error("AI Sync Failed:", err);
+  //     }
+  //   };
+  //
+  //   runSync();
+  // }, []); // 空の配列を渡すことで1回だけ実行される
 
   return (
     <div className="w-full h-full rounded-xl shadow-lg overflow-hidden border border-gray-200">
