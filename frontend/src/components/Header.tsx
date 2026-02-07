@@ -54,34 +54,44 @@ export default function Header() {
         {/* ===== Right side ===== */}
         <div className="flex items-center gap-1">
           {/* Language */}
-          <Popover>
-            <PopoverButton className="flex items-center gap-1 rounded-md px-1 py-1 text-white/80 hover:bg-white/10">
-              <GlobeAltIcon className="h-8 w-8" />
-              <span className="text-sm font-semibold">
-                {language === 'ja' ? 'JA' : 'EN'}
-              </span>
-            </PopoverButton>
+          <Popover className="relative">
+  {({ close }) => (
+    <>
+      <PopoverButton className="flex items-center gap-1 rounded-md px-1 py-1 text-white/80 hover:bg-white/10">
+        <GlobeAltIcon className="h-8 w-8" />
+        <span className="text-sm font-semibold">
+          {language === 'ja' ? 'JA' : 'EN'}
+        </span>
+      </PopoverButton>
 
-            <PopoverPanel className="absolute right-0 mt-2 w-28 rounded-lg bg-gray-900">
-              <button
-                onClick={() => setLanguage('ja')}
-                className={`block w-full px-4 py-2 text-left text-sm ${
-                  language === 'ja' ? 'text-emerald-300' : 'text-white'
-                } hover:bg-white/10`}
-              >
-                日本語
-              </button>
+      <PopoverPanel className="absolute right-0 mt-2 w-28 rounded-lg bg-gray-900">
+        <button
+          onClick={() => {
+            setLanguage('ja')
+            close()
+          }}
+          className={`block w-full px-4 py-2 text-left text-sm ${
+            language === 'ja' ? 'text-emerald-300' : 'text-white'
+          } hover:bg-white/10`}
+        >
+          日本語
+        </button>
 
-              <button
-                onClick={() => setLanguage('en')}
-                className={`block w-full px-4 py-2 text-left text-sm ${
-                  language === 'en' ? 'text-emerald-300' : 'text-white'
-                } hover:bg-white/10`}
-              >
-                English
-              </button>
-            </PopoverPanel>
-          </Popover>
+        <button
+          onClick={() => {
+            setLanguage('en')
+            close() // ← これで閉じる
+          }}
+          className={`block w-full px-4 py-2 text-left text-sm ${
+            language === 'en' ? 'text-emerald-300' : 'text-white'
+          } hover:bg-white/10`}
+        >
+          English
+        </button>
+      </PopoverPanel>
+    </>
+  )}
+</Popover>
 
           {/* Mobile button */}
           <button
