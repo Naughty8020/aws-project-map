@@ -1,16 +1,12 @@
 import React from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-
 import GoogleMap from '../components/MapComponents';
 import CrowdGraph, { type SortMode } from '../components/CrowdGraph';
 import SelectedSpotCard from '../components/SelectedSpotCard';
-import SpotDetailModal from '../components/SpotDetailModal';
-
+import SpotDetailModal from '../components/SpotDetailModal'; // ⭐ 追加
+import { fetchKyotoSpots } from '../api/spots';
 import type { Spot } from '../types/spot';
 import { sortSpotsByDistance } from '../utils/distance';
-
-import { fetchKyotoSpots } from '../api/spots';
-import { syncAiSpots } from '../api/aiClinent';
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
   component: IndexPage,
@@ -20,17 +16,13 @@ export default function IndexPage() {
   const [spots, setSpots] = React.useState<Spot[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-
   const [selectedSpotName, setSelectedSpotName] = React.useState<string | null>(null);
-  const [modalSpot, setModalSpot] = React.useState<Spot | null>(null);
-
+  const [modalSpot, setModalSpot] = React.useState<Spot | null>(null); // ⭐ モーダル用
   const [myPos, setMyPos] = React.useState<{ lat: number; lng: number } | null>(null);
   const [myAcc, setMyAcc] = React.useState<number | null>(null);
-
   const [sortMode, setSortMode] = React.useState<SortMode>('crowd-asc');
 
   const detailPanelRef = React.useRef<HTMLDivElement>(null);
-
   const scrollToDetail = React.useCallback(() => {
     detailPanelRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -38,18 +30,13 @@ export default function IndexPage() {
     });
   }, []);
 
-  // ✅ データ取得（AI優先 → 失敗時S3）
+  // S3からデータ取得
   React.useEffect(() => {
     async function loadSpots() {
       try {
-        try {
-          const aiSpots = await syncAiSpots();
-          setSpots(aiSpots.map((s) => ({ ...s, city: 'kyoto' as const })));
-        } catch (aiErr) {
-          console.warn('AI sync failed, fallback to S3', aiErr);
-          const base = await fetchKyotoSpots();
-          setSpots(base.map((s) => ({ ...s, city: 'kyoto' as const })));
-        }
+        const data = await fetchKyotoSpots();
+        console.log('Fetched spots:', data);
+        setSpots(data.map((s) => ({ ...s, city: 'kyoto' as const })));
       } catch (err) {
         console.error(err);
         setError('データ取得に失敗しました');
@@ -57,29 +44,24 @@ export default function IndexPage() {
         setLoading(false);
       }
     }
-
     loadSpots();
   }, []);
 
-  // ✅ 選択中スポット
   const selectedSpot: Spot | null = React.useMemo(() => {
     if (!selectedSpotName) return null;
     return spots.find((s) => s.name === selectedSpotName) ?? null;
   }, [spots, selectedSpotName]);
 
-  const handleSelectSpot = (spot: Spot) => {
-    setSelectedSpotName(spot.name);
-  };
 
-  const handleShowDetailFromInfo = React.useCallback(
-    (spot: Spot) => {
-      scrollToDetail();
-      setModalSpot(spot);
-    },
-    [scrollToDetail]
-  );
+  const handleShowDetailFromInfo = React.useCallback((spot: Spot) => {
+    scrollToDetail();     // ✅ 右ペインへ
+    setModalSpot(spot);   // ✅ モーダルを開く
+  }, [scrollToDetail]);
 
-  // ✅ 並び替え
+
+  const handleSelectSpot = (spot: Spot) => setSelectedSpotName(spot.name);
+
+  // 並び替え済みデータ
   const viewSpots = React.useMemo(() => {
     if (sortMode === 'distance') {
       if (!myPos) return spots;
@@ -99,13 +81,14 @@ export default function IndexPage() {
     }
   }, [spots, myPos, sortMode]);
 
-  // ✅ Escで解除
+  // Escでカード選択解除
   React.useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setSelectedSpotName(null);
         setModalSpot(null);
+        setSelectedSpotName(null);
       }
+
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -116,9 +99,9 @@ export default function IndexPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+
       <main className="flex-1 pt-16 px-10">
         <div className="mx-auto w-full max-w-[1700px] flex items-stretch gap-20 pb-10 h-[calc(100vh-220px)]">
-          {/* 🗺 Map */}
           <div className="flex-[2] min-w-[400px] h-full">
             <GoogleMap
               spots={spots}
@@ -135,8 +118,8 @@ export default function IndexPage() {
             />
           </div>
 
-          {/* 📊 Right panel */}
           <div className="flex-[2] h-full flex flex-col gap-4 min-h-0">
+            {/* ✅ スクロール先 */}
             <div ref={detailPanelRef} className="flex-1 min-h-0 overflow-hidden">
               <SelectedSpotCard
                 spot={selectedSpot}
@@ -163,10 +146,11 @@ export default function IndexPage() {
       {modalSpot && (
         <SpotDetailModal
           spot={modalSpot}
-          myPos={myPos}
+          myPos={myPos}   // ← ★これ追加！！
           onClose={() => setModalSpot(null)}
         />
       )}
+
     </div>
   );
 }
