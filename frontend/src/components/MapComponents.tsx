@@ -5,6 +5,7 @@ import LocationOverlay from './LocationOverlay';
 import CurrentLocationControl from './CurrentLocationControl';
 import type { Spot } from '../types/spot';
 import SelectedSpotInfoWindow from './SelectedSpotInfoWindow';
+import { syncAiSpots } from '../api/aiClinent';
 
 
 type Props = {
@@ -18,12 +19,13 @@ type Props = {
 
   // ✅ Mapが取得したらAppへ通知
   onLocationChange?: (pos: google.maps.LatLngLiteral, acc?: number) => void;
-  onShowDetail?: (spot: Spot) => void; 
+  onShowDetail?: (spot: Spot) => void;
 };
 
 interface MapInnerProps extends Props {
   mapId?: string;
 }
+
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(Math.max(n, min), max);
@@ -122,39 +124,39 @@ function MapInner({
   const crowdToRadius = (crowd: number): number => {
     const c = clamp(crowd, 0, 100);
     const scaled = Math.sqrt(c);
-    return clamp(60 + scaled * 16, 60, 220);
+    return clamp(200 + scaled * 16, 60, 500);
   };
 
- React.useEffect(() => {
-  if (!map) return;
+  React.useEffect(() => {
+    if (!map) return;
 
-  if (recenteringRef.current) return;
+    if (recenteringRef.current) return;
 
-  // pinned があればそれに寄せる。なければ selectedSpot（グラフ選択）に寄せる
-  const target = (pinnedSpotName
-    ? spots.find((s) => s.name === pinnedSpotName) ?? null
-    : selectedSpot);
+    // pinned があればそれに寄せる。なければ selectedSpot（グラフ選択）に寄せる
+    const target = (pinnedSpotName
+      ? spots.find((s) => s.name === pinnedSpotName) ?? null
+      : selectedSpot);
 
-  if (!target) return;
+    if (!target) return;
 
-  map.panTo({ lat: target.lat, lng: target.lng });
+    map.panTo({ lat: target.lat, lng: target.lng });
 
-  const currentZoom = map.getZoom() ?? 13;
-  const targetZoom = 15;
-  if (currentZoom < targetZoom) map.setZoom(targetZoom);
-}, [map, selectedSpot, pinnedSpotName, spots]);
+    const currentZoom = map.getZoom() ?? 13;
+    const targetZoom = 15;
+    if (currentZoom < targetZoom) map.setZoom(targetZoom);
+  }, [map, selectedSpot, pinnedSpotName, spots]);
 
-React.useEffect(() => {
-  if (!map) return;
+  React.useEffect(() => {
+    if (!map) return;
 
-  const listener = map.addListener('click', () => {
-    setPinnedSpotName(null);
-  });
+    const listener = map.addListener('click', () => {
+      setPinnedSpotName(null);
+    });
 
-  return () => {
-    google.maps.event.removeListener(listener);
-  };
-}, [map]);
+    return () => {
+      google.maps.event.removeListener(listener);
+    };
+  }, [map]);
 
 
 
@@ -186,7 +188,7 @@ React.useEffect(() => {
       >
         <LocationOverlay position={effectivePos} accuracyMeters={effectiveAcc} />
 
-            {/* ✅ 選択中スポットの吹き出し */}
+        {/* ✅ 選択中スポットの吹き出し */}
         <SelectedSpotInfoWindow
           spot={shownSpot}
           myPos={effectivePos}
@@ -196,7 +198,7 @@ React.useEffect(() => {
         />
 
 
-       {spots.map((spot) => {
+        {spots.map((spot) => {
           const hovered = hoverSpotName === spot.name;
           const pinned = pinnedSpotName === spot.name;
 
@@ -243,6 +245,21 @@ React.useEffect(() => {
 export default function GoogleMap(props: Props) {
   const MAP_ID = import.meta.env.VITE_MAP_ID;
   const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  // ✅ 追加：コンポーネントがマウントされた時に実行
+  // React.useEffect(() => {
+  //   const runSync = async () => {
+  //     try {
+  //       console.log("Starting AI Sync...");
+  //       const res = await syncAiSpots();
+  //       console.log("AI Sync Completed!", res);
+  //     } catch (err) {
+  //       console.error("AI Sync Failed:", err);
+  //     }
+  //   };
+  //
+  //   runSync();
+  // }, []); // 空の配列を渡すことで1回だけ実行される
 
   return (
     <div className="w-full h-full rounded-xl shadow-lg overflow-hidden border border-gray-200">

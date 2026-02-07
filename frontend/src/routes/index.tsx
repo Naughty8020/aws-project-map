@@ -35,6 +35,7 @@ export default function IndexPage() {
     async function loadSpots() {
       try {
         const data = await fetchKyotoSpots();
+        console.log('Fetched spots:', data);
         setSpots(data.map((s) => ({ ...s, city: 'kyoto' as const })));
       } catch (err) {
         console.error(err);
@@ -51,7 +52,7 @@ export default function IndexPage() {
     return spots.find((s) => s.name === selectedSpotName) ?? null;
   }, [spots, selectedSpotName]);
 
-  
+
   const handleShowDetailFromInfo = React.useCallback((spot: Spot) => {
     scrollToDetail();     // ✅ 右ペインへ
     setModalSpot(spot);   // ✅ モーダルを開く
@@ -105,7 +106,7 @@ export default function IndexPage() {
             <GoogleMap
               spots={spots}
               selectedSpot={selectedSpot}
-              onSelectSpot={handleSelectSpot} 
+              onSelectSpot={handleSelectSpot}
               onLocationChange={(pos, acc) => {
                 setMyPos(pos);
                 setMyAcc(acc ?? null);
