@@ -1,14 +1,11 @@
-// backend/src/index.ts
+import { serve } from '@hono/node-server'; // Node.js環境での起動に必要
 import { handle } from 'hono/aws-lambda';
-import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { serve } from '@hono/node-server';
-
+import { Hono } from 'hono';
 import {
   BedrockRuntimeClient,
   InvokeModelCommand,
 } from '@aws-sdk/client-bedrock-runtime';
-
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
@@ -21,23 +18,23 @@ import {
 ====================== */
 const app = new Hono();
 
-// CORS
-app.use('/api/*', cors());
+// CORSミドルウェア: フロントエンド(5173)からのアクセスを許可
+app.use('*', cors({
+  origin: 'http://localhost:5173',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 600,
+}));
 
 /* ======================
    AWS Clients
 ====================== */
-
-// Bedrock
 const bedrock = new BedrockRuntimeClient({
   region: 'ap-northeast-1',
 });
 
-// DynamoDB
 const ddb = DynamoDBDocumentClient.from(
-  new DynamoDBClient({
-    region: 'ap-northeast-1',
-  })
+  new DynamoDBClient({ region: 'ap-northeast-1' })
 );
 
 /* ======================
@@ -55,10 +52,7 @@ app.get('/api/ai', async (c) => {
       anthropic_version: 'bedrock-2023-05-31',
       max_tokens: 1000,
       messages: [
-        {
-          role: 'user',
-          content: [{ type: 'text', text: prompt }],
-        },
+        { role: 'user', content: [{ type: 'text', text: prompt }] },
       ],
     }),
   });
@@ -75,63 +69,39 @@ app.get('/api/ai', async (c) => {
 });
 
 /* ======================
-   API: DynamoDB 個別取得
-====================== */
-app.get('/api/spots/:spot_id/:updated_at', async (c) => {
-  const spot_id = c.req.param('spot_id');
-  const updated_at = c.req.param('updated_at');
-
-  if (!spot_id || !updated_at) {
-    return c.json({ error: 'spot_id と updated_at が必要です' }, 400);
-  }
-
-  try {
-    const result = await ddb.send(
-      new GetCommand({
-        TableName: 'tourist_spots',
-        Key: { spot_id, updated_at },
-      })
-    );
-
-    if (!result.Item) {
-      return c.json({ message: 'not found' }, 404);
-    }
-
-    return c.json(result.Item);
-  } catch (error) {
-    console.error(error);
-    return c.json({ error: 'DynamoDB取得失敗' }, 500);
-  }
-});
-
-/* ======================
    API: DynamoDB 全件取得
 ====================== */
-app.get('/api/spots', async (c) => {
+app.get('/api/events', async (c) => {
   try {
     const result = await ddb.send(
-      new ScanCommand({ TableName: 'tourist_spots' })
+      new ScanCommand({ TableName: 'kyoto_event_a9f3k2' })
     );
-    return c.json((result.Items ?? []));
+
+    return c.json({
+      success: true,
+      data: result.Items ?? []
+    });
   } catch (error) {
     console.error(error);
-    return c.json({ error: 'DynamoDB取得失敗' }, 500);
+    return c.json({ error: 'イベントデータの取得に失敗しました' }, 500);
   }
 });
 
 /* ======================
-   Lambda export
+   サーバーの起動設定 (Docker/Local用)
 ====================== */
-export const handler = handle(app);
-export type AppType = typeof app;
+// AWS Lambda環境以外（Docker等）で動かすための設定
+if (process.env.NODE_ENV !== 'production' || !process.env.LAMBDA_TASK_ROOT) {
+  const port = 3000;
+  console.log(`🚀 Server is running on http://localhost:${port}`);
 
-/* ======================
-   ローカル / Docker 用
-====================== */
-const port = Number(process.env.PORT ?? 3000);
-
-if (process.env.NODE_ENV !== 'production') {
-  serve({ fetch: app.fetch, port });
-  console.log(`✅ Backend listening on http://localhost:${port}`);
+  serve({
+    fetch: app.fetch,
+    port,
+    hostname: '0.0.0.0', // Dockerの外部公開に必須
+  });
 }
 
+// AWS Lambda用のハンドラー
+export const handler = handle(app);
+export default app;
